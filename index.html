@@ -1,0 +1,2196 @@
+# necromancer-survivors<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Necromancer Survivors</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: #0c0c0c;
+    color: #ddd;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  #app {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  header, footer {
+    background: rgba(20,20,20,0.9);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #333;
+    user-select: none;
+  }
+  header h1 {
+    font-weight: 700;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: #a1c935;
+    text-shadow: 0 0 5px #81b214;
+  }
+  footer {
+    border-top: 1px solid #333;
+    font-size: 0.875rem;
+    color: #666;
+  }
+  #game-container {
+    position: relative;
+    flex: 1 1 auto;
+    background: linear-gradient(135deg, #121212 0%, #2a2a2a 100%);
+    box-shadow: inset 0 0 40px #1d1d1d;
+    border-radius: 16px;
+    margin: 16px 24px;
+    overflow: hidden;
+    touch-action: none;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    image-rendering: pixelated;
+    border-radius: 16px;
+  }
+  #hud {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    color: #bada55;
+    font-weight: 700;
+    font-size: 1rem;
+    text-shadow: 0 0 4px #bada55;
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    user-select: none;
+    z-index: 10;
+  }
+  #health-container {
+    background: #222;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 140px;
+    height: 20px;
+    box-shadow: 0 0 6px #5c9317 inset;
+    position: relative;
+  }
+  #health-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #a1c935, #81b214);
+    width: 100%;
+    transition: width 0.3s ease-out;
+    box-shadow: 0 0 8px #81b214;
+  }
+  #health-label {
+    position: absolute;
+    top: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #121212;
+    font-weight: 800;
+    font-size: 0.85rem;
+    user-select: none;
+  }
+  #score {
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    color: #81b214;
+    text-shadow: 0 0 6px #a1c935;
+  }
+  #timer {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    color: #bada55;
+    font-weight: 700;
+    font-size: 1rem;
+    text-shadow: 0 0 4px #bada55;
+    z-index: 10;
+  }
+  button, .icon-button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #bada55;
+    font-size: 1.8rem;
+    user-select: none;
+    transition: color 0.25s;
+    padding: 4px;
+    border-radius: 12px;
+  }
+  button:hover, .icon-button:hover { color: #d5f17c; }
+  button:focus, .icon-button:focus {
+    outline: 2px solid #81b214;
+    outline-offset: 2px;
+  }
+  .material-icons { vertical-align: middle; }
+  #menu, #game-over-screen, #pause-screen, #level-up-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #121212dd;
+    padding: 32px 48px;
+    border-radius: 16px;
+    box-shadow: 0 0 20px #81b214;
+    z-index: 20;
+    text-align: center;
+    color: #bada55;
+  }
+  #pause-screen {
+    width: 80%;
+    max-width: 600px;
+  }
+  #skills-list {
+    text-align: left;
+    margin-top: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .skill-item {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #81b214;
+    border-radius: 8px;
+  }
+  .ultra-glow {
+  filter: drop-shadow(0 0 8px currentColor);
+}
+  #menu h2, #game-over-screen h2, #pause-screen h2, #level-up-screen h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+    text-shadow: 0 0 10px #81b214;
+  }
+  #menu button, #game-over-screen button, #pause-screen button, #level-up-screen button {
+    font-size: 1.2rem;
+    background: #81b214;
+    color: #121212;
+    border-radius: 12px;
+    padding: 12px 32px;
+    margin-top: 20px;
+    font-weight: 700;
+    box-shadow: 0 0 12px #a1c935;
+    transition: background 0.3s;
+  }
+  #menu button:hover, #game-over-screen button:hover, #pause-screen button:hover, #level-up-screen button:hover {
+    background: #a1c935;
+  }
+  #mobile-controls {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 16px;
+    z-index: 15;
+    user-select: none;
+  }
+  #dpad {
+    display: grid;
+    grid-template-columns: 44px 44px 44px;
+    grid-template-rows: 44px 44px 44px;
+    gap: 6px;
+    width: 150px;
+    height: 150px;
+  }
+  .dpad-btn {
+    width: 44px;
+    height: 44px;
+    background: #222922cc;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #bada55;
+    font-size: 24px;
+    box-shadow: 0 0 6px #81b214;
+    user-select: none;
+  }
+  .dpad-btn:active {
+    background-color: #81b214;
+    color: #121212;
+    box-shadow: 0 0 12px #a1c935;
+  }
+  #attack-btn {
+    width: 60px;
+    height: 60px;
+    background: #81b214cc;
+    border-radius: 50%;
+    color: #121212;
+    font-size: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 14px #a1c935;
+    user-select: none;
+  }
+  #attack-btn:active {
+    background: #a1c935;
+    box-shadow: 0 0 18px #bada55;
+  }
+  @media(min-width: 768px) { #mobile-controls { display: none; } }
+  :focus-visible {
+    outline: 2px solid #a1c935;
+    outline-offset: 2px;
+  }
+  #level-up-screen { display: none; }
+  #level-up-screen h3 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    text-shadow: 0 0 4px #81b214;
+  }
+  .spell-choice {
+    margin: 10px;
+    padding: 15px;
+    border: 2px solid #81b214;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+    user-select: none;
+  }
+  .spell-choice:hover {
+    background-color: #222;
+    border-color: #a1c935;
+  }
+  .spell-choice h4 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+  .spell-choice p {
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+  #xp-bar-container {
+    position: absolute;
+    top: 16px;
+    right: 250px;
+    width: 200px;
+    height: 20px;
+    background-color: #222;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 6px #5c9317 inset;
+    z-index: 10;
+  }
+  #xp-bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #a1c935, #81b214);
+    transition: width 0.3s ease-out;
+    box-shadow: 0 0 8px #81b214;
+  }
+  #xp-label {
+    position: absolute;
+    top: 1px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #121212;
+    font-weight: 800;
+    font-size: 0.85rem;
+    user-select: none;
+  }
+  #level-display {
+    position: absolute;
+    top: 40px;
+    right: 250px;
+    color: #bada55;
+    font-weight: 700;
+    font-size: 1rem;
+    text-shadow: 0 0 4px #bada55;
+    z-index: 10;
+  }
+  #relics-display {
+    position: absolute;
+    top: 64px;
+    right: 250px;
+    color: #bada55;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-shadow: 0 0 4px #bada55;
+    z-index: 10;
+    text-align: right;
+  }
+  #ultimate-btn {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    background: #ff4500cc;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 24px;
+    box-shadow: 0 0 14px #ff6347;
+    cursor: pointer;
+    z-index: 15;
+    user-select: none;
+  }
+  #ultimate-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .summon-glow {
+    animation: summonPulse 0.5s ease-in-out;
+  }
+  .chest-sparkle {
+    animation: sparkle 1s infinite;
+  }
+  @keyframes summonPulse {
+    0% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.8; transform: scale(1); }
+  }
+  @keyframes sparkle {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+</style>
+</head>
+<body>
+<div id="app" role="main" aria-label="Necromancer Survivors Game">
+  <header role="banner">
+    <h1>Necromancer Survivors</h1>
+    <button id="pause-btn" class="icon-button" aria-label="Pause Game" title="Pause Game">
+      <span class="material-icons">pause_circle_filled</span>
+    </button>
+  </header>
+  <div id="game-container" tabindex="0" aria-label="Game Canvas Container" role="region">
+    <canvas id="game-canvas" width="800" height="600" aria-live="polite" aria-roledescription="game canvas"></canvas>
+    <div id="hud" aria-live="polite" aria-atomic="true">
+      <div id="health-container" aria-label="Player Health">
+        <div id="health-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"></div>
+        <div id="health-label">100%</div>
+      </div>
+      <div id="score" aria-label="Score">Score: 0</div>
+    </div>
+    <div id="xp-bar-container">
+      <div id="xp-bar"></div>
+      <div id="xp-label">0%</div>
+    </div>
+    <div id="level-display">Level: 1</div>
+    <div id="relics-display">Relics: None</div>
+    <div id="timer">00:00</div>
+    <div id="menu" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+      <h2 id="menu-title">Necromancer Survivors</h2>
+      <p>Control a necromancer, survive waves of enemies! Auto attacks, upgrades, and ultimate ability.</p>
+      <button id="start-btn">Start Game</button>
+    </div>
+    <div id="pause-screen" role="dialog" aria-modal="true" aria-labelledby="pause-title" hidden>
+      <h2 id="pause-title">Game Paused</h2>
+      <div id="skills-list"></div>
+      <button id="resume-btn">Resume</button>
+      <button id="restart-btn-from-pause">Restart</button>
+    </div>
+    <div id="game-over-screen" role="dialog" aria-modal="true" aria-labelledby="gameover-title" hidden>
+      <h2 id="gameover-title">Game Over</h2>
+      <div id="final-score" aria-live="polite" style="margin: 16px 0;">Your Score: 0</div>
+      <button id="restart-btn">Play Again</button>
+      <button id="go-menu-btn">Main Menu</button>
+    </div>
+    <div id="level-up-screen" role="dialog" aria-modal="true" aria-labelledby="levelup-title" hidden>
+      <h2 id="levelup-title">Level Up! Choose a Spell or Upgrade</h2>
+      <div id="weapon-choices"></div>
+    </div>
+    <div id="mobile-controls" aria-label="Touch Controls" role="region">
+      <div id="dpad" aria-label="Movement Controls">
+        <button class="dpad-btn" data-dir="up" aria-label="Move Up" title="Move Up"><span class="material-icons">arrow_upward</span></button>
+        <button class="dpad-btn" data-dir="" aria-hidden="true" disabled aria-disabled="true"></button>
+        <button class="dpad-btn" data-dir="right" aria-label="Move Right" title="Move Right"><span class="material-icons">arrow_forward</span></button>
+        <button class="dpad-btn" data-dir="left" aria-label="Move Left" title="Move Left"><span class="material-icons">arrow_back</span></button>
+        <button class="dpad-btn" data-dir="down" aria-label="Move Down" title="Move Down"><span class="material-icons">arrow_downward</span></button>
+        <button class="dpad-btn" data-dir="" aria-hidden="true" disabled aria-disabled="true"></button>
+      </div>
+    </div>
+    <button id="ultimate-btn" disabled aria-label="Use Ultimate Ability" title="Summon Undead Dragon"><span class="material-icons">whatshot</span></button>
+  </div>
+  <footer role="contentinfo">
+    <div>© 2025 Necromancer Survivors - High Score: <span id="high-score">0</span></div>
+  </footer>
+</div>
+<script>
+(() => {
+  "use strict";
+  const canvas = document.getElementById("game-canvas");
+  const ctx = canvas.getContext("2d");
+  const menu = document.getElementById("menu");
+  const startBtn = document.getElementById("start-btn");
+  const gameOverScreen = document.getElementById("game-over-screen");
+  const finalScoreEl = document.getElementById("final-score");
+  const restartBtn = document.getElementById("restart-btn");
+  const goMenuBtn = document.getElementById("go-menu-btn");
+  const pauseBtn = document.getElementById("pause-btn");
+  const pauseScreen = document.getElementById("pause-screen");
+  const resumeBtn = document.getElementById("resume-btn");
+  const restartFromPauseBtn = document.getElementById("restart-btn-from-pause");
+  const healthBar = document.getElementById("health-bar");
+  const healthLabel = document.getElementById("health-label");
+  const scoreEl = document.getElementById("score");
+  const highScoreEl = document.getElementById("high-score");
+  const xpBar = document.getElementById("xp-bar");
+  const xpLabel = document.getElementById("xp-label");
+  const levelDisplay = document.getElementById("level-display");
+  const relicsDisplay = document.getElementById("relics-display");
+  const levelUpScreen = document.getElementById("level-up-screen");
+  const weaponChoicesContainer = document.getElementById("weapon-choices");
+  const ultimateBtn = document.getElementById("ultimate-btn");
+  const timerEl = document.getElementById("timer");
+  const skillsList = document.getElementById("skills-list");
+
+  let gameState = "menu";
+  const PLAYER_SIZE = 32;
+  const ENEMY_SIZE = 28;
+  const BOSS_SIZE = 70;
+  const CANVAS_WIDTH = canvas.width;
+  const CANVAS_HEIGHT = canvas.height;
+  const MAX_HEALTH = 100;
+  const PLAYER_SPEED = 3;
+  const ENEMY_BASE_SPEED = 1.2;
+  const XP_PER_ENEMY = 15;
+  const XP_CURVE = 1.5;
+  const BOSS_INTERVAL = 18000;
+  const ULTIMATE_UNLOCK_TIME = 36000;
+  let keysPressed = {};
+  let touchDirection = { x: 0, y: 0 };
+  let player = {
+    x: CANVAS_WIDTH / 2,
+    y: CANVAS_HEIGHT / 2,
+    size: PLAYER_SIZE,
+    speed: PLAYER_SPEED,
+    health: MAX_HEALTH,
+    maxHealth: MAX_HEALTH,
+    xp: 0,
+    level: 1,
+    xpToNextLevel: 80,
+    weapons: {},
+    relics: [],
+    damageDealt: {},
+  };
+  let enemies = [];
+  let projectiles = [];
+  let summons = [];
+  let bosses = [];
+  let chests = [];
+  let particles = [];
+  let hazards = [];
+  let relics = [];
+  let score = 0;
+  let highScore = parseInt(localStorage.getItem("necromancerHighScore")) || 0;
+  let spawnTimer = 0;
+  let spawnInterval = 90;
+  let wave = 1;
+  let enemiesToSpawn = 5;
+  let frameCount = 0;
+  let bossTimer = 0;
+  let ultimateReady = false;
+  let ultimateCooldown = 0;
+  let gameTimer = 0;
+
+  const ENEMY_TYPES = {
+    standard: { size: 33, speed: 1.2, health: 3, damage: 0.7, color: "#8b0000", xp: 15 },
+    fast: { size: 20, speed: 2.0, health: 1, damage: 0.5, color: "#ff4500", xp: 12 },
+    tank: { size: 40, speed: 0.8, health: 10, damage: 1.2, color: "#4682b4", xp: 22 },
+    ranged: { size: 24, speed: 1.0, health: 2, damage: 0.8, color: "#9932cc", xp: 18, attackCooldown: 120 },
+    swarm: { size: 16, speed: 1.5, health: 0.5, damage: 0.3, color: "#32cd32", xp: 8 },
+    minion: { size: 16, speed: 1.8, health: 1, damage: 0.5, color: "#6b8e23", xp: 5, attackCooldown: 60 },
+  };
+
+  const BOSS_TYPES = {
+    standard: { size: 70, speed: 0.7, health: 100, damage: 3, color: "#800080", attackCooldown: 60, type: 'melee' },
+    summoning: { size: 60, speed: 0.9, health: 80, damage: 2, color: "#228b22", attackCooldown: 180, type: 'summoner' },
+    ranged: { size: 50, speed: 1.2, health: 60, damage: 1.5, color: "#b22222", attackCooldown: 90, type: 'ranged' },
+  };
+
+const skeletonSprite = new Image();
+skeletonSprite.src = 'skeleton.png'; // Path to your sprite
+const zombieSprite = new Image();
+zombieSprite.src = 'zombie.png'; // Replace with your zombie sprite path
+const golemSprite = new Image();
+golemSprite.src = 'golem.png'; // Replace with your golem sprite path
+const playerSprite = new Image();
+playerSprite.src = 'player.png'; // Replace with your player sprite path
+const ghostIdleSprite = new Image();
+ghostIdleSprite.src = 'ghost_idle.png'; // Replace with your ghost idle sprite path
+const ghostShootingSprite = new Image();
+ghostShootingSprite.src = 'ghost_shooting.png'; // Replace with your ghost shooting sprite path
+const wraithLeftSprite = new Image();
+wraithLeftSprite.src = 'wraith_left.png'; // Replace with your wraith left-facing sprite path
+const wraithRightSprite = new Image();
+wraithRightSprite.src = 'wraith_right.png'; // Replace with your wraith right-facing sprite path
+const wraithStraightSprite = new Image();
+wraithStraightSprite.src = 'wraith_straight.png'; // Replace with your wraith straight sprite path
+const scytheSprite = new Image();
+scytheSprite.src = 'scythe.png'; // Replace with your scythe projectile sprite path
+const boneSpearSprite = new Image();
+boneSpearSprite.src = 'bone_spear.png'; // Replace with your bone spear projectile sprite path
+
+const WEAPON_DATA = {
+  skeleton: {
+    name: "Summon Skeletons",
+    description: "Summons skeleton warriors to fight enemies.",
+    baseDamage: 2,
+    baseDuration: 300,
+    baseCooldown: 180,
+    summonCount: 1,
+    summonType: "skeleton",
+    levelScaling: { damage: 1.5, duration: 60, cooldown: -25, summonCount: 0.5 },
+    maxLevel: 5,
+    ultraBonus: { summonCount: 5, damageMultiplier: 3.5, speed: 3.5, cleave: true }, // Cleave: hits multiple enemies
+    ultraVisual: { color: "#8b8b00", sizeMultiplier: 1.5, particleCount: 30, glow: true }
+  },
+  zombie: {
+    name: "Summon Zombies",
+    description: "Summons tanky zombies to absorb damage.",
+    baseDamage: 1,
+    baseDuration: 360,
+    baseCooldown: 240,
+    summonCount: 1,
+    summonType: "zombie",
+    levelScaling: { damage: 1, duration: 80, cooldown: -30, summonCount: 0.3 },
+    maxLevel: 5,
+    ultraBonus: { summonCount: 4, damageMultiplier: 3, healthMultiplier: 3, taunt: true }, // Taunt: attracts enemies
+    ultraVisual: { color: "#115511", sizeMultiplier: 1.3, particleCount: 25, glow: true }
+  },
+  ghost: {
+    name: "Summon Ghosts",
+    description: "Summons ranged ghost archers to shoot enemies.",
+    baseDamage: 3,
+    baseDuration: 240,
+    baseCooldown: 200,
+    summonCount: 1,
+    summonType: "ghost",
+    levelScaling: { damage: 2, duration: 50, cooldown: -20, summonCount: 0.4 },
+    maxLevel: 5,
+    ultraBonus: { summonCount: 3, damageMultiplier: 3, attackSpeed: 0.5, dualShot: true }, // DualShot: shoots two bullets
+    ultraVisual: { color: "#006d8b", sizeMultiplier: 1.2, particleCount: 35, glow: true }
+  },
+  golem: {
+    name: "Summon Bone Golem",
+    description: "Summons a massive bone golem to crush enemies.",
+    baseDamage: 5,
+    baseDuration: 400,
+    baseCooldown: 300,
+    summonCount: 1,
+    summonType: "golem",
+    levelScaling: { damage: 3, duration: 100, cooldown: -40, summonCount: 0.2 },
+    maxLevel: 5,
+    ultraBonus: { summonCount: 2, damageMultiplier: 4, sizeMultiplier: 1.5, stun: true }, // Stun: briefly stuns enemies
+    ultraVisual: { color: "#8b2d00", sizeMultiplier: 2, particleCount: 40, glow: true }
+  },
+  blood: {
+    name: "Blood Orbs",
+    description: "Fires homing blood orbs at enemies.",
+    baseDamage: 4,
+    baseSpeed: 6,
+    baseCooldown: 60,
+    baseHoming: 0.1,
+    orbCount: 1,
+    levelScaling: { damage: 2, speed: 0.8, cooldown: -10, homing: 0.03, orbCount: 0.5 },
+    maxLevel: 5,
+    ultraBonus: { orbCount: 3, damageMultiplier: 3.5, homingStrength: 0.4, explode: true }, // Explode: small AOE on hit
+    ultraVisual: { color: "#8b0000", sizeMultiplier: 1.5, particleCount: 30, glow: true }
+  },
+  bone: {
+    name: "Bone Spears",
+    description: "Launches piercing bone spears in a spread.",
+    baseDamage: 5,
+    baseSpeed: 10,
+    baseCooldown: 90,
+    spearCount: 3,
+    levelScaling: { damage: 3, speed: 1.2, cooldown: -15, spearCount: 1 },
+    maxLevel: 5,
+    ultraBonus: { spearCount: 9, damageMultiplier: 3, ricochet: true }, // Ricochet: bounces to another enemy
+    ultraVisual: { color: "#b0b0b0", sizeMultiplier: 1.8, particleCount: 35, glow: true }
+  },
+  soul: {
+    name: "Soul Harvest",
+    description: "Drains life from nearby enemies, healing you.",
+    baseDamage: 3,
+    baseRadius: 80,
+    baseCooldown: 120,
+    baseHeal: 0.5,
+    levelScaling: { damage: 1.5, radius: 15, cooldown: -20, heal: 0.3 },
+    maxLevel: 5,
+    ultraBonus: { radiusMultiplier: 2.5, damageMultiplier: 4, healMultiplier: 3, weaken: true }, // Weaken: reduces enemy damage
+    ultraVisual: { color: "#104e8b", sizeMultiplier: 1.5, particleCount: 40, glow: true }
+  },
+  wraith: {
+    name: "Wraith Swarm",
+    description: "Unleashes a swarm of wraiths that chase enemies.",
+    baseDamage: 2,
+    baseSpeed: 5,
+    baseCooldown: 100,
+    wraithCount: 3,
+    levelScaling: { damage: 1, speed: 0.5, cooldown: -15, wraithCount: 1 },
+    maxLevel: 5,
+    ultraBonus: { wraithCount: 10, damageMultiplier: 3, speedMultiplier: 2, chain: true }, // Chain: chains to nearby enemies
+    ultraVisual: { color: "#3c2f6b", sizeMultiplier: 1.4, particleCount: 30, glow: true }
+  },
+  grave: {
+    name: "Grave Explosion",
+    description: "Triggers explosions at enemy locations.",
+    baseDamage: 6,
+    baseRadius: 50,
+    baseCooldown: 150,
+    explosionCount: 1,
+    levelScaling: { damage: 3, radius: 10, cooldown: -20, explosionCount: 0.5 },
+    maxLevel: 5,
+    ultraBonus: { explosionCount: 3, damageMultiplier: 3, radiusMultiplier: 2, burn: true }, // Burn: applies DOT
+    ultraVisual: { color: "#8b4500", sizeMultiplier: 2, particleCount: 35, glow: true }
+  },
+  chains: {
+    name: "Cursed Chains",
+    description: "Binds enemies, slowing and damaging them.",
+    baseDamage: 2,
+    baseRadius: 100,
+    baseCooldown: 180,
+    slow: 0.5,
+    levelScaling: { damage: 1, radius: 20, cooldown: -25, slow: 0.1 },
+    maxLevel: 5,
+    ultraBonus: { radiusMultiplier: 2, damageMultiplier: 3, slow: 0.9, root: true }, // Root: immobilizes enemies
+    ultraVisual: { color: "#1a2f2f", sizeMultiplier: 1.5, particleCount: 30, glow: true }
+  },
+  nova: {
+    name: "Death Nova",
+    description: "Releases a radial burst of necrotic energy.",
+    baseDamage: 4,
+    baseRadius: 60,
+    baseCooldown: 120,
+    levelScaling: { damage: 2, radius: 10, cooldown: -15 },
+    maxLevel: 5,
+    ultraBonus: { radiusMultiplier: 2, damageMultiplier: 3.5, knockback: true }, // Knockback: pushes enemies away
+    ultraVisual: { color: "#2a004b", sizeMultiplier: 2, particleCount: 40, glow: true }
+  },
+  scythe: {
+    name: "Spectral Scythe",
+    description: "Swings a scythe that pierces through enemies.",
+    baseDamage: 5,
+    baseSpeed: 8,
+    baseCooldown: 100,
+    scytheCount: 1,
+    levelScaling: { damage: 2.5, speed: 1, cooldown: -15, scytheCount: 0.5 },
+    maxLevel: 5,
+    ultraBonus: { scytheCount: 3, damageMultiplier: 3, return: true }, // Return: boomerang effect
+    ultraVisual: { color: "#808080", sizeMultiplier: 1.8, particleCount: 35, glow: true }
+  },
+  curse: {
+    name: "Curse of Decay",
+    description: "Applies a damage-over-time curse to nearby enemies.",
+    baseDamage: 1,
+    baseRadius: 80,
+    baseCooldown: 150,
+    duration: 180,
+    levelScaling: { damage: 0.5, radius: 15, cooldown: -20, duration: 30 },
+    maxLevel: 5,
+    ultraBonus: { radiusMultiplier: 2, damageMultiplier: 4, durationMultiplier: 2, spread: true }, // Spread: curse jumps to nearby enemies
+    ultraVisual: { color: "#4b004b", sizeMultiplier: 1.5, particleCount: 30, glow: true }
+  },
+};
+
+  const SUMMON_TYPES = {
+    skeleton: { size: 24, speed: 2, health: 5, attackCooldown: 60, color: "#bada55", emoji: "☠" },
+    zombie: { size: 32, speed: 1.5, health: 15, attackCooldown: 90, color: "#556b2f", emoji: "🧟" },
+    ghost: { size: 20, speed: 2.5, health: 3, attackCooldown: 45, color: "#add8e6", emoji: "👻" },
+    golem: { size: 40, speed: 1, health: 25, attackCooldown: 120, color: "#a9a9a9", emoji: "🦴" },
+    dragon: { size: 80, speed: 0.5, health: 100, attackCooldown: 30, color: "#ff4500", emoji: "🐉" },
+  };
+
+  const RELIC_TYPES = {
+    speed: { name: "Relic of Haste", effect: "Summons move 10% faster", multiplier: 1.1 },
+    xp: { name: "Relic of Wisdom", effect: "Gain 20% more XP", multiplier: 1.2 },
+    damage: { name: "Relic of Fury", effect: "Deal 15% more damage", multiplier: 1.15 },
+    health: { name: "Relic of Vitality", effect: "Max health +20", multiplier: 20 },
+    cooldown: { name: "Relic of Swiftness", effect: "Cooldowns reduced by 10%", multiplier: 0.9 },
+  };
+
+  const HAZARD_TYPES = {
+    poison: { size: 50, damage: 0.2, duration: 600, color: "#00ff00" },
+    spike: { size: 30, speed: 2, damage: 1, duration: 900, color: "#c0c0c0" },
+    burning: { size: 25, damage: 2, duration: 180, color: "#ff8c00" },
+  };
+
+  function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
+  function distance(x1, y1, x2, y2) { return Math.hypot(x2 - x1, y2 - y1); }
+  function normalizeVector(x, y) {
+    const len = Math.sqrt(x * x + y * y);
+    return len === 0 ? { x: 0, y: 0 } : { x: x / len, y: y / len };
+  }
+  function addParticles(x, y, count, color, speed, life) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const spd = speed * (0.5 + Math.random() * 0.5);
+      particles.push({
+        x, y,
+        dx: Math.cos(angle) * spd,
+        dy: Math.sin(angle) * spd,
+        size: 4 + Math.random() * 4,
+        life, maxLife: life, color,
+      });
+    }
+  }
+  let audioCtx;
+  function playBeep(freq = 300, dur = 0.1) {
+    if (!audioCtx) return;
+    let osc = audioCtx.createOscillator();
+    let gainNode = audioCtx.createGain();
+    osc.frequency.value = freq;
+    osc.type = "square";
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    osc.start();
+    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    osc.stop(audioCtx.currentTime + dur);
+  }
+  function playAttackSound() { playBeep(600, 0.05); }
+  function playSummonSound() { playBeep(400, 0.2); }
+  function playEnemyHitSound() { playBeep(200, 0.05); }
+  function playChestPickupSound() { playBeep(800, 0.15); }
+  function playBossSpawnSound() { playBeep(120, 0.4); }
+  function playGameOverSound() { playBeep(100, 0.5); }
+  function playUltimateSound() { playBeep(150, 0.6); }
+  function playRelicPickupSound() { playBeep(1000, 0.1); }
+  function playChestSpawnSound() { playBeep(700, 0.3); }
+
+  function resetGame() {
+    player.x = CANVAS_WIDTH / 2;
+    player.y = CANVAS_HEIGHT / 2;
+    player.health = player.maxHealth;
+    player.xp = 0;
+    player.level = 1;
+    player.xpToNextLevel = 80;
+    player.weapons = { skeleton: { level: 1, ultra: false, cooldown: 0, damageDealt: 0 } };
+    player.relics = [];
+    player.damageDealt = {};
+    enemies = [];
+    bosses = [];
+    projectiles = [];
+    summons = [];
+    chests = [];
+    particles = [];
+    hazards = [];
+    relics = [];
+    score = 0;
+    wave = 1;
+    enemiesToSpawn = 5;
+    spawnInterval = 90;
+    spawnTimer = 0;
+    frameCount = 0;
+    bossTimer = 0;
+    gameTimer = 0;
+    ultimateReady = false;
+    ultimateCooldown = 0;
+    updateHealthUI();
+    updateScoreUI();
+    updateXPUI();
+    updateLevelUI();
+    updateRelicsUI();
+    updateTimerUI();
+    ultimateBtn.disabled = true;
+  }
+  function updateHealthUI() {
+    const hpPercent = clamp(player.health, 0, player.maxHealth);
+    const pct = isFinite(hpPercent) && isFinite(player.maxHealth) && player.maxHealth > 0 ? (hpPercent / player.maxHealth) * 100 : 0;
+    healthBar.style.width = pct + "%";
+    healthBar.setAttribute("aria-valuenow", Math.floor(pct));
+    healthLabel.textContent = Math.floor(pct) + "%";
+  }
+  function updateScoreUI() {
+    scoreEl.textContent = "Score: " + score.toLocaleString();
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem("necromancerHighScore", highScore);
+      highScoreEl.textContent = highScore.toLocaleString();
+    }
+  }
+  function updateXPUI() {
+    const pct = Math.min(player.xp / player.xpToNextLevel, 1) * 100;
+    xpBar.style.width = pct + "%";
+    xpLabel.textContent = Math.floor(pct) + "%";
+  }
+  function updateLevelUI() { levelDisplay.textContent = "Level: " + player.level; }
+  function updateRelicsUI() {
+    relicsDisplay.textContent = "Relics: " + (player.relics.length ? player.relics.map(r => RELIC_TYPES[r].name).join(", ") : "None");
+  }
+  function updateTimerUI() {
+    const minutes = Math.floor(gameTimer / 3600);
+    const seconds = Math.floor((gameTimer % 3600) / 60);
+    timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+  function updateSkillsList() {
+    skillsList.innerHTML = '<h3>Your Skills</h3>';
+    for (let wId in player.weapons) {
+      const weapon = player.weapons[wId];
+      const data = WEAPON_DATA[wId];
+      const damage = player.damageDealt[wId] || 0;
+      const div = document.createElement('div');
+      div.className = 'skill-item';
+      div.innerHTML = `
+        <h4>${data.name} ${weapon.ultra ? '[ULTRA]' : ''} (Level ${weapon.level})</h4>
+        <p>${data.description}</p>
+        <p>Damage Dealt: ${damage.toLocaleString()}</p>
+      `;
+      skillsList.appendChild(div);
+    }
+  }
+  function gainXP(amount) {
+    let xpBoost = player.relics.includes('xp') ? RELIC_TYPES.xp.multiplier : 1;
+    player.xp += amount * xpBoost;
+    if (player.xp >= player.xpToNextLevel) {
+      player.xp -= player.xpToNextLevel;
+      player.level++;
+      player.xpToNextLevel = Math.floor(player.xpToNextLevel * XP_CURVE);
+      openWeaponChoiceMenu();
+      updateLevelUI();
+    }
+    updateXPUI();
+  }
+  function openWeaponChoiceMenu() {
+    gameState = "levelup";
+    levelUpScreen.style.display = "block";
+    weaponChoicesContainer.innerHTML = "";
+    let weaponIds = Object.keys(WEAPON_DATA);
+    let choices = [];
+    let upgradedOrNew = [];
+    for (let wid in player.weapons) {
+      let w = player.weapons[wid];
+      if (w.level < WEAPON_DATA[wid].maxLevel || (w.level === WEAPON_DATA[wid].maxLevel && !w.ultra)) {
+        upgradedOrNew.push({ id: wid, upgrade: true });
+      }
+    }
+    let locked = weaponIds.filter(wid => !(wid in player.weapons));
+    for (let i = 0; i < locked.length; i++) {
+      upgradedOrNew.push({ id: locked[i], upgrade: false });
+    }
+    for (let i = 0; i < 3; i++) {
+      if (upgradedOrNew.length === 0) break;
+      const idx = Math.floor(Math.random() * upgradedOrNew.length);
+      choices.push(upgradedOrNew[idx]);
+      upgradedOrNew.splice(idx, 1);
+    }
+    while (choices.length < 3) {
+      choices.push({ id: 'skeleton', upgrade: true });
+    }
+    choices.forEach(choice => {
+      let wId = choice.id;
+      let weaponData = WEAPON_DATA[wId];
+      let currentLevel = player.weapons[wId]?.level || 0;
+      let isUltra = player.weapons[wId]?.ultra || false;
+      let button = document.createElement("button");
+      button.className = "spell-choice";
+      button.tabIndex = 0;
+      let title = weaponData.name;
+      if (isUltra) title += " [ULTRA]";
+      else if (currentLevel > 0) title += " Lv." + currentLevel;
+      button.innerHTML = `<h4>${title}</h4><p>${choice.upgrade ? (isUltra ? "Already Ultra!" : (currentLevel === weaponData.maxLevel ? "Upgrade to Ultra" : "Upgrade Spell")) : "Unlock New Spell"}</p><small>${weaponData.description}</small>`;
+      button.onclick = () => {
+        if (choice.upgrade) {
+          if (isUltra) {
+            alert("Already at Ultra level!");
+            return;
+          }
+          if (currentLevel === weaponData.maxLevel) {
+            player.weapons[wId].ultra = true;
+            alert(`${weaponData.name} upgraded to ULTRA form!`);
+            playChestPickupSound();
+          } else {
+            player.weapons[wId].level++;
+            alert(`${weaponData.name} upgraded to level ${player.weapons[wId].level}!`);
+            playChestPickupSound();
+          }
+        } else {
+          if (player.weapons[wId]) {
+            alert("Spell already unlocked.");
+          } else {
+            player.weapons[wId] = { level: 1, ultra: false, cooldown: 0, damageDealt: 0 };
+            player.damageDealt[wId] = 0;
+            alert(`${weaponData.name} unlocked!`);
+            playChestPickupSound();
+          }
+        }
+        closeWeaponChoiceMenu();
+      };
+      weaponChoicesContainer.appendChild(button);
+    });
+  }
+  function closeWeaponChoiceMenu() {
+    levelUpScreen.style.display = "none";
+    gameState = "playing";
+    canvas.focus();
+  }
+  function spawnEnemy(type = null) {
+    let enemyType = type || (wave > 5 && Math.random() < 0.2 ? 'fast' : wave > 3 && Math.random() < 0.4 ? 'tank' : wave > 7 && Math.random() < 0.6 ? 'ranged' : wave > 2 && Math.random() < 0.8 ? 'swarm' : 'standard');
+    const typeData = ENEMY_TYPES[enemyType];
+    let x, y;
+    const side = Math.floor(Math.random() * 4);
+    switch (side) {
+      case 0: x = Math.random() * CANVAS_WIDTH; y = -typeData.size; break;
+      case 1: x = CANVAS_WIDTH + typeData.size; y = Math.random() * CANVAS_HEIGHT; break;
+      case 2: x = Math.random() * CANVAS_WIDTH; y = CANVAS_HEIGHT + typeData.size; break;
+      case 3: x = -typeData.size; y = Math.random() * CANVAS_HEIGHT; break;
+    }
+    const speedMod = 1 + wave * 0.05;
+    enemies.push({
+      x, y,
+      size: typeData.size,
+      speed: typeData.speed * speedMod,
+      health: typeData.health + Math.floor(wave / 2),
+      maxHealth: typeData.health + Math.floor(wave / 2),
+      damage: typeData.damage,
+      alive: true,
+      type: enemyType,
+      color: typeData.color,
+      xp: typeData.xp,
+      attackCooldown: typeData.attackCooldown || 0,
+    });
+    if (Math.random() < 0.01) spawnRelic(x, y);
+  }
+  function spawnBoss() {
+    let bossType = Math.random() < 0.33 ? 'summoning' : Math.random() < 0.5 ? 'ranged' : 'standard';
+    let typeData = BOSS_TYPES[bossType];
+    let x = CANVAS_WIDTH / 2;
+    let y = -typeData.size;
+    let health = typeData.health + wave * 75;
+    bosses.push({
+      x, y,
+      size: typeData.size,
+      speed: typeData.speed,
+      health,
+      maxHealth: health,
+      alive: true,
+      isBoss: true,
+      attackCooldown: typeData.attackCooldown,
+      type: bossType,
+      color: typeData.color,
+      summonTimer: bossType === 'summoning' ? 0 : null,
+    });
+    playBossSpawnSound();
+    spawnChest(x, y); // Ensure boss spawns with a chest
+  }
+  function spawnHazard() {
+    if (wave < 10) return;
+    let type = Math.random() < 0.5 ? 'poison' : 'spike';
+    let typeData = HAZARD_TYPES[type];
+    let x = Math.random() * CANVAS_WIDTH;
+    let y = Math.random() * CANVAS_HEIGHT;
+    let dx = type === 'spike' ? Math.cos(Math.random() * Math.PI * 2) * typeData.speed : 0;
+    let dy = type === 'spike' ? Math.sin(Math.random() * Math.PI * 2) * typeData.speed : 0;
+    hazards.push({
+      x, y,
+      size: typeData.size,
+      damage: typeData.damage,
+      duration: typeData.duration,
+      dx, dy,
+      type,
+      color: typeData.color,
+    });
+  }
+  function spawnChest(x, y) {
+    chests.push({ x, y, size: 30, picked: false, sparkleTimer: 0 });
+    playChestSpawnSound();
+    addParticles(x, y, 15, "#ffd700", 2, 60);
+  }
+  function spawnRelic(x, y) { relics.push({ x, y, size: 20, type: Object.keys(RELIC_TYPES)[Math.floor(Math.random() * Object.keys(RELIC_TYPES).length)], picked: false }); }
+  function applySynergies(weaponId, damage, orbCount) {
+    let finalDamage = damage;
+    let finalOrbCount = orbCount || 0;
+    if (weaponId in ['skeleton', 'zombie', 'ghost', 'golem'] && player.weapons.soul && player.weapons.soul.cooldown > 0) {
+      finalDamage *= 1.2;
+    }
+    if (weaponId === 'blood' && player.weapons.wraith) {
+      finalOrbCount += 1;
+    }
+    return { damage: finalDamage, orbCount: finalOrbCount };
+  }
+  function trackDamage(weaponId, damage) {
+    if (!player.damageDealt[weaponId]) player.damageDealt[weaponId] = 0;
+    player.damageDealt[weaponId] += damage;
+  }
+function autoAttack() {
+  let damageBoost = player.relics.includes('damage') ? RELIC_TYPES.damage.multiplier : 1;
+  let cooldownReduction = player.relics.includes('cooldown') ? RELIC_TYPES.cooldown.multiplier : 1;
+  for (let wId in player.weapons) {
+    let weapon = player.weapons[wId];
+    if (weapon.cooldown > 0) {
+      weapon.cooldown--;
+      continue;
+    }
+    let data = WEAPON_DATA[wId];
+    let lvl = weapon.level;
+    let damage = (data.baseDamage + data.levelScaling.damage * (lvl - 1)) * damageBoost;
+    let cd = Math.max(30, (data.baseCooldown + data.levelScaling.cooldown * (lvl - 1)) * cooldownReduction);
+    let summonCount = data.summonCount ? data.summonCount + data.levelScaling.summonCount * (lvl - 1) : 0;
+    let speed = data.baseSpeed ? data.baseSpeed + data.levelScaling.speed * (lvl - 1) : 0;
+    let homing = data.baseHoming ? data.baseHoming + data.levelScaling.homing * (lvl - 1) : 0;
+    let radius = data.baseRadius ? data.baseRadius + data.levelScaling.radius * (lvl - 1) : 0;
+    let heal = data.baseHeal ? data.baseHeal + data.levelScaling.heal * (lvl - 1) : 0;
+    let duration = data.baseDuration ? data.baseDuration + data.levelScaling.duration * (lvl - 1) : 0;
+    let spearCount = data.spearCount ? data.spearCount + data.levelScaling.spearCount * (lvl - 1) : 0;
+    let orbCount = data.orbCount ? data.orbCount + data.levelScaling.orbCount * (lvl - 1) : 0;
+    let wraithCount = data.wraithCount ? data.wraithCount + data.levelScaling.wraithCount * (lvl - 1) : 0;
+    let explosionCount = data.explosionCount ? data.explosionCount + data.levelScaling.explosionCount * (lvl - 1) : 0;
+    let slow = data.slow ? data.slow + data.levelScaling.slow * (lvl - 1) : 0;
+    let scytheCount = data.scytheCount ? data.scytheCount + data.levelScaling.scytheCount * (lvl - 1) : 0;
+    let curseDuration = data.duration ? data.duration + data.levelScaling.duration * (lvl - 1) : 0;
+    if (weapon.ultra) {
+      summonCount = data.ultraBonus.summonCount || summonCount;
+      damage *= data.ultraBonus.damageMultiplier || 1;
+      radius *= data.ultraBonus.radiusMultiplier || 1;
+      heal *= data.ultraBonus.healMultiplier || 1;
+      speed *= data.ultraBonus.speedMultiplier || 1;
+      homing = data.ultraBonus.homingStrength || homing;
+      spearCount = data.ultraBonus.spearCount || spearCount;
+      orbCount = data.ultraBonus.orbCount || orbCount;
+      wraithCount = data.ultraBonus.wraithCount || wraithCount;
+      explosionCount = data.ultraBonus.explosionCount || explosionCount;
+      slow = data.ultraBonus.slow || slow;
+      scytheCount = data.ultraBonus.scytheCount || scytheCount;
+      curseDuration *= data.ultraBonus.durationMultiplier || 1;
+    }
+    let synergy = applySynergies(wId, damage, orbCount);
+    damage = synergy.damage;
+    orbCount = synergy.orbCount;
+    let visual = weapon.ultra ? data.ultraVisual : { color: data.color, sizeMultiplier: 1, particleCount: 10, glow: false };
+    if (['skeleton', 'zombie', 'ghost', 'golem'].includes(wId)) {
+      let count = weapon.ultra ? data.ultraBonus.summonCount : Math.floor(summonCount);
+      let summonType = data.summonType;
+      let typeData = SUMMON_TYPES[summonType];
+      let summonSpeed = (weapon.ultra && data.ultraBonus.speed ? data.ultraBonus.speed : typeData.speed) * (player.relics.includes('speed') ? RELIC_TYPES.speed.multiplier : 1);
+      for (let i = 0; i < count; i++) {
+        let angle = Math.random() * Math.PI * 2;
+        let dist = 40;
+        summons.push({
+          x: player.x + Math.cos(angle) * dist,
+          y: player.y + Math.sin(angle) * dist,
+          size: (weapon.ultra && data.ultraBonus.sizeMultiplier ? typeData.size * data.ultraBonus.sizeMultiplier : typeData.size) * visual.sizeMultiplier,
+          damage: damage,
+          life: duration,
+          speed: summonSpeed,
+          health: weapon.ultra && data.ultraBonus.healthMultiplier ? typeData.health * data.ultraBonus.healthMultiplier : typeData.health,
+          maxHealth: weapon.ultra && data.ultraBonus.healthMultiplier ? typeData.health * data.ultraBonus.healthMultiplier : typeData.health,
+          attackCooldown: weapon.ultra && data.ultraBonus.attackSpeed ? typeData.attackCooldown * data.ultraBonus.attackSpeed : typeData.attackCooldown,
+          type: summonType,
+          color: visual.color || typeData.color,
+          emoji: typeData.emoji,
+          ultra: weapon.ultra,
+          ultraEffects: weapon.ultra ? data.ultraBonus : {}
+        });
+        addParticles(player.x, player.y, visual.particleCount, visual.color || typeData.color, 3, 30);
+        playSummonSound();
+      }
+    } else if (wId === 'blood') {
+      let closestEnemy = null;
+      let minDist = Infinity;
+      enemies.concat(bosses).forEach(e => {
+        if (!e.alive) return;
+        let d = distance(player.x, player.y, e.x, e.y);
+        if (d < minDist) {
+          minDist = d;
+          closestEnemy = e;
+        }
+      });
+      if (closestEnemy) {
+        let count = weapon.ultra ? data.ultraBonus.orbCount : Math.floor(orbCount);
+        for (let i = 0; i < count; i++) {
+          let angle = Math.atan2(closestEnemy.y - player.y, closestEnemy.x - player.x) + (i - (count - 1) / 2) * 0.2;
+          projectiles.push({
+            x: player.x,
+            y: player.y,
+            size: 12 * visual.sizeMultiplier,
+            speed: speed,
+            dx: Math.cos(angle) * speed,
+            dy: Math.sin(angle) * speed,
+            damage: damage,
+            homing: true,
+            target: closestEnemy,
+            homingStrength: homing,
+            type: 'blood',
+            weaponId: wId,
+            ultra: weapon.ultra,
+            ultraEffects: weapon.ultra ? data.ultraBonus : {}
+          });
+        }
+        addParticles(player.x, player.y, visual.particleCount, visual.color || "#8b0000", 2, 20);
+        playAttackSound();
+      }
+    } else if (wId === 'bone') {
+      let count = weapon.ultra ? data.ultraBonus.spearCount : Math.floor(spearCount);
+      let spread = Math.PI / 4;
+      let baseAngle = frameCount * 0.1;
+      for (let i = 0; i < count; i++) {
+        let angle = baseAngle + (i - (count - 1) / 2) * spread / count;
+        projectiles.push({
+          x: player.x,
+          y: player.y,
+          size: 10 * visual.sizeMultiplier,
+          speed: speed,
+          dx: Math.cos(angle) * speed,
+          dy: Math.sin(angle) * speed,
+          damage: damage,
+          piercing: true,
+          type: 'bone',
+          weaponId: wId,
+          ultra: weapon.ultra,
+          ultraEffects: weapon.ultra ? data.ultraBonus : {},
+          hits: []
+        });
+      }
+      addParticles(player.x, player.y, visual.particleCount, visual.color || "#f5f5f5", 4, 25);
+      playAttackSound();
+    } else if (wId === 'soul') {
+      enemies.concat(bosses).forEach(e => {
+        if (!e.alive) return;
+        if (distance(player.x, player.y, e.x, e.y) < radius) {
+          let dmg = damage / 60;
+          e.health -= dmg;
+          player.health = Math.min(player.maxHealth, player.health + heal / 60);
+          if (weapon.ultra && data.ultraBonus.weaken) e.damage *= 0.7; // Reduce enemy damage
+          trackDamage(wId, dmg);
+          addParticles(e.x, e.y, visual.particleCount / 2, visual.color || "#00b7eb", 1, 15);
+          updateHealthUI();
+          if (e.health <= 0) {
+            e.alive = false;
+            score += e.isBoss ? 10 * wave : 1;
+            gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+            updateScoreUI();
+          }
+        }
+      });
+      addParticles(player.x, player.y, visual.particleCount, visual.color || "#00b7eb", 2, 20);
+      playAttackSound();
+    } else if (wId === 'wraith') {
+      let count = weapon.ultra ? Math.min(data.ultraBonus.wraithCount, 10) : Math.floor(Math.min(wraithCount, 10));
+      let activeWraiths = projectiles.filter(p => p.type === 'wraith').length;
+      if (activeWraiths + count > 20) return;
+      let targets = enemies.concat(bosses).filter(e => e.alive).sort(() => Math.random() - 0.5).slice(0, count);
+      for (let i = 0; i < count && i < targets.length; i++) {
+        let angle = Math.random() * Math.PI * 2;
+        projectiles.push({
+          x: player.x,
+          y: player.y,
+          size: 8 * visual.sizeMultiplier,
+          speed: speed,
+          dx: Math.cos(angle) * speed,
+          dy: Math.sin(angle) * speed,
+          damage: damage,
+          homing: true,
+          target: targets[i] || null,
+          homingStrength: 0.2,
+          type: 'wraith',
+          weaponId: wId,
+          ultra: weapon.ultra,
+          ultraEffects: weapon.ultra ? data.ultraBonus : {}
+        });
+      }
+      addParticles(player.x, player.y, visual.particleCount, visual.color || "#483d8b", 3, 25);
+      playAttackSound();
+    } else if (wId === 'grave') {
+      let count = weapon.ultra ? data.ultraBonus.explosionCount : Math.floor(explosionCount);
+      let targets = enemies.concat(bosses).filter(e => e.alive).sort(() => Math.random() - 0.5).slice(0, count);
+      targets.forEach(e => {
+        projectiles.push({
+          x: e.x,
+          y: e.y,
+          size: (weapon.ultra ? radius * data.ultraBonus.radiusMultiplier : radius) * visual.sizeMultiplier,
+          damage: damage,
+          life: 30,
+          type: 'explosion',
+          weaponId: wId,
+          ultra: weapon.ultra,
+          ultraEffects: weapon.ultra ? data.ultraBonus : {}
+        });
+        if (player.weapons.chains) {
+          hazards.push({
+            x: e.x,
+            y: e.y,
+            size: radius / 2,
+            damage: damage / 3,
+            duration: 180,
+            type: 'burning',
+            color: "#ff8c00"
+          });
+        }
+        addParticles(e.x, e.y, visual.particleCount, visual.color || "#ff4500", 5, 40);
+        playAttackSound();
+      });
+    } else if (wId === 'chains') {
+      enemies.concat(bosses).forEach(e => {
+        if (!e.alive || distance(player.x, player.y, e.x, e.y) > radius) return;
+        let dmg = damage / 60;
+        e.health -= dmg;
+        e.speed *= slow;
+        if (weapon.ultra && data.ultraBonus.root) e.speed = 0; // Immobilize enemies
+        trackDamage(wId, dmg);
+        addParticles(e.x, e.y, visual.particleCount / 2, visual.color || "#2f4f4f", 1, 15);
+        if (e.health <= 0) {
+          e.alive = false;
+          score += e.isBoss ? 10 * wave : 1;
+          gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+          updateScoreUI();
+        }
+      });
+      addParticles(player.x, player.y, visual.particleCount, visual.color || "#2f4f4f", 2, 20);
+      playAttackSound();
+    } else if (wId === 'nova') {
+      projectiles.push({
+        x: player.x,
+        y: player.y,
+        size: radius * visual.sizeMultiplier,
+        damage: damage,
+        life: 30,
+        type: 'nova',
+        weaponId: wId,
+        ultra: weapon.ultra,
+        ultraEffects: weapon.ultra ? data.ultraBonus : {}
+      });
+      addParticles(player.x, player.y, visual.particleCount, visual.color || "#4b0082", 4, 40);
+      playAttackSound();
+    } else if (wId === 'scythe') {
+      let count = weapon.ultra ? data.ultraBonus.scytheCount : Math.floor(scytheCount);
+      for (let i = 0; i < count; i++) {
+        let angle = (frameCount * 0.1 + i * Math.PI * 2 / count) % (Math.PI * 2);
+        projectiles.push({
+          x: player.x,
+          y: player.y,
+          size: 15 * visual.sizeMultiplier,
+          speed: speed,
+          dx: Math.cos(angle) * speed,
+          dy: Math.sin(angle) * speed,
+          damage: damage,
+          piercing: true,
+          type: 'scythe',
+          weaponId: wId,
+          ultra: weapon.ultra,
+          ultraEffects: weapon.ultra ? data.ultraBonus : {},
+          returnTime: weapon.ultra ? 30 : null // Boomerang effect
+        });
+      }
+      addParticles(player.x, player.y, visual.particleCount, visual.color || "#c0c0c0", 3, 30);
+      playAttackSound();
+    } else if (wId === 'curse') {
+      enemies.concat(bosses).forEach(e => {
+        if (!e.alive || distance(player.x, player.y, e.x, e.y) > radius) return;
+        e.curse = { damage: damage / 60, duration: curseDuration };
+        if (weapon.ultra && data.ultraBonus.spread) {
+          let nearby = enemies.concat(bosses).filter(n => n !== e && n.alive && distance(e.x, e.y, n.x, n.y) < radius / 2);
+          nearby.forEach(n => n.curse = { damage: damage / 60, duration: curseDuration });
+        }
+        addParticles(e.x, e.y, visual.particleCount / 2, visual.color || "#800080", 1, 15);
+      });
+      addParticles(player.x, player.y, visual.particleCount, visual.color || "#800080", 2, 20);
+      playAttackSound();
+    }
+    weapon.cooldown = cd;
+  }
+}
+  function useUltimate() {
+    if (!ultimateReady || ultimateCooldown > 0) return;
+    summons.push({
+      x: player.x,
+      y: player.y - 50,
+      size: SUMMON_TYPES.dragon.size,
+      damage: 10,
+      life: 600,
+      speed: SUMMON_TYPES.dragon.speed,
+      health: SUMMON_TYPES.dragon.health,
+      maxHealth: SUMMON_TYPES.dragon.health,
+      attackCooldown: SUMMON_TYPES.dragon.attackCooldown,
+      type: 'dragon',
+      color: SUMMON_TYPES.dragon.color,
+      emoji: SUMMON_TYPES.dragon.emoji,
+    });
+    ultimateReady = false;
+    ultimateCooldown = 1800;
+    ultimateBtn.disabled = true;
+    playUltimateSound();
+    addParticles(player.x, player.y, 30, "#ff4500", 5, 60);
+  }
+  function upgradeRandomSkill() {
+    let weaponIds = Object.keys(player.weapons).filter(wid => !player.weapons[wid].ultra);
+    if (weaponIds.length === 0) {
+      let locked = Object.keys(WEAPON_DATA).filter(wid => !(wid in player.weapons));
+      if (locked.length > 0) {
+        let wId = locked[Math.floor(Math.random() * locked.length)];
+        player.weapons[wId] = { level: 1, ultra: false, cooldown: 0, damageDealt: 0 };
+        player.damageDealt[wId] = 0;
+        alert(`${WEAPON_DATA[wId].name} unlocked!`);
+        playChestPickupSound();
+      }
+      return;
+    }
+    let wId = weaponIds[Math.floor(Math.random() * weaponIds.length)];
+    let weapon = player.weapons[wId];
+    let data = WEAPON_DATA[wId];
+    if (weapon.level < data.maxLevel) {
+      weapon.level++;
+      alert(`${data.name} upgraded to level ${weapon.level}!`);
+      playChestPickupSound();
+    } else if (weapon.level === data.maxLevel && !weapon.ultra) {
+      weapon.ultra = true;
+      alert(`${data.name} upgraded to ULTRA form!`);
+      addParticles(player.x, player.y, data.ultraVisual.particleCount, data.ultraVisual.color, 4, 60);
+      playChestPickupSound();
+    }
+  }
+  function update() {
+    if (gameState !== "playing") {
+      if (gameState === "paused") updateSkillsList();
+      return;
+    }
+    frameCount++;
+    gameTimer++;
+    spawnTimer++;
+    bossTimer++;
+    updateTimerUI();
+    if (frameCount >= ULTIMATE_UNLOCK_TIME && !ultimateReady) {
+      ultimateReady = true;
+      ultimateBtn.disabled = false;
+    }
+    if (ultimateCooldown > 0) ultimateCooldown--;
+    let moveX = 0, moveY = 0;
+    if (keysPressed['w'] || keysPressed['arrowup']) moveY -= 1;
+    if (keysPressed['s'] || keysPressed['arrowdown']) moveY += 1;
+    if (keysPressed['a'] || keysPressed['arrowleft']) moveX -= 1;
+    if (keysPressed['d'] || keysPressed['arrowright']) moveX += 1;
+    if (touchDirection.x !== 0 || touchDirection.y !== 0) {
+      moveX = touchDirection.x;
+      moveY = touchDirection.y;
+    }
+    let norm = normalizeVector(moveX, moveY);
+    player.x += norm.x * player.speed;
+    player.y += norm.y * player.speed;
+    player.x = clamp(player.x, player.size / 2, CANVAS_WIDTH - player.size / 2);
+    player.y = clamp(player.y, player.size / 2, CANVAS_HEIGHT - player.size / 2);
+    autoAttack();
+    if (spawnTimer >= spawnInterval) {
+      if (enemiesToSpawn > 0) {
+        spawnEnemy();
+        enemiesToSpawn--;
+        spawnTimer = 0;
+      } else if (enemies.filter(e => e.alive).length === 0 && bosses.filter(b => b.alive).length === 0) {
+        wave++;
+        enemiesToSpawn = 5 + Math.floor(wave * 4.5); // Increased from wave * 3 to wave * 4.5 for more enemies
+        spawnInterval = Math.max(20, 90 - Math.floor(wave * 1.5)); // Decreased faster, from wave / 3 to wave * 1.5, min 20
+        if (wave % 5 === 0) spawnHazard();
+      }
+    }
+    if (bossTimer >= BOSS_INTERVAL) {
+      bossTimer = 0;
+      spawnBoss();
+    }
+    enemies.forEach(e => {
+      if (!e.alive) return;
+      let target = player;
+      if (e.type === 'minion' && Math.random() < 0.2) {
+        let closestMinion = null;
+        let minDist = Infinity;
+        enemies.forEach(other => {
+          if (other === e || !other.alive || other.type !== 'minion') return;
+          let d = distance(e.x, e.y, other.x, other.y);
+          if (d < minDist && d < 50) {
+            minDist = d;
+            closestMinion = other;
+          }
+        });
+        target = closestMinion || target;
+      }
+      let dir = normalizeVector(target.x - e.x, target.y - e.y);
+      if (e.type === 'ranged' || e.type === 'minion') {
+        e.attackCooldown--;
+        if (e.attackCooldown <= 0 && distance(e.x, e.y, target.x, target.y) < 200) {
+          let angle = Math.atan2(target.y - e.y, target.x - e.x);
+          projectiles.push({
+            x: e.x,
+            y: e.y,
+            size: 8,
+            speed: 4,
+            dx: Math.cos(angle) * 4,
+            dy: Math.sin(angle) * 4,
+            damage: e.damage,
+            type: 'enemy_shot',
+            source: 'enemy'
+          });
+          e.attackCooldown = ENEMY_TYPES[e.type].attackCooldown;
+        }
+      } else {
+        e.x += dir.x * e.speed;
+        e.y += dir.y * e.speed;
+        if (e.type === 'minion' && target !== player && distance(e.x, e.y, target.x, target.y) < e.size / 2 + target.size / 2 && e.attackCooldown <= 0) {
+          target.health -= e.damage;
+          e.attackCooldown = ENEMY_TYPES.minion.attackCooldown;
+          if (target.health <= 0) {
+            target.alive = false;
+            score += 1;
+            gainXP(target.xp);
+            updateScoreUI();
+          }
+        } else if (distance(e.x, e.y, player.x, player.y) < e.size / 2 + player.size / 2 - 4) {
+          player.health = Math.max(0, player.health - e.damage);
+          updateHealthUI();
+          if (player.health <= 1){
+            player.health = 0;
+            updateHealthUI();
+            onGameOver();
+          }
+        }
+      }
+      if (e.curse) {
+        e.curse.duration--;
+        let dmg = e.curse.damage;
+        e.health -= dmg;
+        trackDamage('curse', dmg);
+        if (e.curse.duration <= 0) delete e.curse;
+        if (e.health <= 0) {
+          e.alive = false;
+          score += 1;
+          gainXP(e.xp);
+          updateScoreUI();
+        }
+      }
+    });
+    bosses.forEach((b, i) => {
+      if (!b.alive) return;
+      let dir = normalizeVector(player.x - b.x, player.y - b.y);
+      b.x += dir.x * b.speed;
+      b.y += dir.y * b.speed;
+      b.attackCooldown--;
+      if (b.type === 'summoning') {
+        b.summonTimer++;
+        if (b.summonTimer >= 180 && enemies.filter(e => e.alive && e.type === 'minion').length < 10) {
+          spawnEnemy('minion');
+          b.summonTimer = 0;
+        }
+      }
+      if (b.attackCooldown <= 0) {
+        if (b.type === 'standard' && distance(b.x, b.y, player.x, player.y) < b.size / 2 + player.size / 2 + 20) {
+          player.health = Math.max(0, player.health - b.damage);
+          updateHealthUI();
+          b.attackCooldown = BOSS_TYPES.standard.attackCooldown;
+        } else if (b.type === 'ranged') {
+          for (let i = 0; i < 5; i++) {
+            let angle = Math.atan2(player.y - b.y, player.x - b.x) + (i - 2) * 0.2;
+            projectiles.push({
+              x: b.x,
+              y: b.y,
+              size: 10,
+              speed: 5,
+              dx: Math.cos(angle) * 5,
+              dy: Math.sin(angle) * 5,
+              damage: b.damage,
+              type: 'boss_shot',
+              source: 'enemy'
+            });
+          }
+          b.attackCooldown = BOSS_TYPES.ranged.attackCooldown;
+        }
+        if (player.health <= 0) {
+          player.health = 0;
+          updateHealthUI();
+          onGameOver();
+        }
+      }
+      if (b.curse) {
+        b.curse.duration--;
+        let dmg = b.curse.damage;
+        b.health -= dmg;
+        trackDamage('curse', dmg);
+        if (b.curse.duration <= 0) delete b.curse;
+      }
+      if (b.health <= 0) {
+        b.alive = false;
+        score += 10 * wave;
+        gainXP(XP_PER_ENEMY * 3 * wave);
+        updateScoreUI();
+        spawnChest(b.x, b.y); // Ensure chest spawns on boss death
+      }
+    });
+summons.forEach((s, i) => {
+  s.life--;
+  s.health = Math.max(0, s.health);
+  if (s.life <= 0 || s.health <= 0) {
+    summons.splice(i, 1);
+    return;
+  }
+  s.attackCooldown--;
+  let closestTarget = null;
+  let minDist = Infinity;
+  bosses.concat(enemies).forEach(e => {
+    if (!e.alive) return;
+    let d = distance(s.x, s.y, e.x, e.y);
+    if (d < minDist) {
+      minDist = d;
+      closestTarget = e;
+    }
+  });
+  if (closestTarget) {
+    if (s.ultra && s.ultraEffects.taunt) {
+      // Zombies attract enemies
+      enemies.concat(bosses).forEach(e => {
+        if (!e.alive) return;
+        if (distance(s.x, s.y, e.x, e.y) < 100) e.target = s;
+      });
+    }
+    if (s.type === 'ghost' && s.attackCooldown <= 0) {
+      let angle = Math.atan2(closestTarget.y - s.y, closestTarget.x - s.x);
+      let shots = s.ultra && s.ultraEffects.dualShot ? 2 : 1;
+      for (let j = 0; j < shots; j++) {
+        let offset = shots === 2 ? (j - 0.5) * 0.2 : 0; // Spread for dual shots
+        projectiles.push({
+          x: s.x,
+          y: s.y,
+          size: 6 * (s.ultra ? 1.2 : 1),
+          speed: 5,
+          dx: Math.cos(angle + offset) * 5,
+          dy: Math.sin(angle + offset) * 5,
+          damage: s.damage,
+          type: 'ghost_shot',
+          weaponId: 'ghost',
+          ultra: s.ultra,
+          ultraEffects: s.ultraEffects
+        });
+      }
+      s.attackCooldown = SUMMON_TYPES.ghost.attackCooldown;
+      playAttackSound();
+    } else if (s.type === 'dragon' && s.attackCooldown <= 0) {
+      for (let i = 0; i < 3; i++) {
+        let angle = (i - 1) * 0.3;
+        projectiles.push({
+          x: s.x,
+          y: s.y,
+          size: 15,
+          speed: 6,
+          dx: Math.cos(angle) * 6,
+          dy: Math.sin(angle) * 6,
+          damage: s.damage,
+          type: 'dragon_fire',
+          piercing: true
+        });
+      }
+      s.attackCooldown = SUMMON_TYPES.dragon.attackCooldown;
+      playAttackSound();
+    } else if (s.type !== 'ghost' && s.type !== 'dragon') {
+      let dir = normalizeVector(closestTarget.x - s.x, closestTarget.y - s.y);
+      s.x += dir.x * s.speed;
+      s.y += dir.y * s.speed;
+      if (distance(s.x, s.y, closestTarget.x, closestTarget.y) < s.size / 2 + closestTarget.size / 2 && s.attackCooldown <= 0) {
+        let dmg = s.damage;
+        closestTarget.health -= dmg;
+        trackDamage(s.type, dmg);
+        playEnemyHitSound();
+        if (s.ultra && s.ultraEffects.cleave) {
+          // Skeleton cleave effect
+          enemies.concat(bosses).forEach(e => {
+            if (!e.alive || e === closestTarget) return;
+            if (distance(s.x, s.y, e.x, e.y) < s.size) {
+              e.health -= dmg * 0.5;
+              trackDamage(s.type, dmg * 0.5);
+              if (e.health <= 0) {
+                e.alive = false;
+                score += e.isBoss ? 10 * wave : 1;
+                gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+                updateScoreUI();
+                if (e.isBoss) spawnChest(e.x, e.y);
+              }
+            }
+          });
+        }
+        if (s.ultra && s.ultraEffects.stun) {
+          // Golem stun effect
+          closestTarget.stunned = 60; // Stun for 1 second
+        }
+        s.attackCooldown = SUMMON_TYPES[s.type].attackCooldown;
+        if (closestTarget.health <= 0) {
+          closestTarget.alive = false;
+          score += closestTarget.isBoss ? 10 * wave : 1;
+          gainXP(closestTarget.isBoss ? XP_PER_ENEMY * 3 * wave : closestTarget.xp);
+          updateScoreUI();
+          if (closestTarget.isBoss) spawnChest(closestTarget.x, closestTarget.y);
+        }
+      }
+    }
+  }
+});
+projectiles.forEach((p, i) => {
+  if (p.returnTime) {
+    p.returnTime--;
+    if (p.returnTime <= 0) {
+      // Scythe boomerang effect
+      let dir = normalizeVector(player.x - p.x, player.y - p.y);
+      p.dx = dir.x * p.speed;
+      p.dy = dir.y * p.speed;
+    }
+  }
+  p.x += p.dx;
+  p.y += p.dy;
+  if (p.homing && p.target && p.target.alive) {
+    let dir = normalizeVector(p.target.x - p.x, p.target.y - p.y);
+    p.dx += dir.x * p.homingStrength;
+    p.dy += dir.y * p.homingStrength;
+    let speed = Math.sqrt(p.dx * p.dx + p.dy * p.dy);
+    if (speed > p.speed) {
+      let norm = normalizeVector(p.dx, p.dy);
+      p.dx = norm.x * p.speed;
+      p.dy = norm.y * p.speed;
+    }
+  } else if (p.homing && (!p.target || !p.target.alive)) {
+    let closest = null;
+    let minDist = 200;
+    enemies.concat(bosses).forEach(e => {
+      if (!e.alive) return;
+      let d = distance(p.x, p.y, e.x, e.y);
+      if (d < minDist) {
+        minDist = d;
+        closest = e;
+      }
+    });
+    p.target = closest;
+  }
+  if (p.type === 'explosion' || p.type === 'nova') {
+    p.life--;
+    if (p.life <= 0) {
+      projectiles.splice(i, 1);
+      return;
+    }
+  }
+  if (p.x < -p.size || p.x > CANVAS_WIDTH + p.size || p.y < -p.size || p.y > CANVAS_HEIGHT + p.size) {
+    projectiles.splice(i, 1);
+    return;
+  }
+  if (p.source !== 'enemy') {
+    enemies.concat(bosses).forEach(e => {
+      if (!e.alive) return;
+      if (distance(p.x, p.y, e.x, e.y) < p.size / 2 + e.size / 2) {
+        let dmg = p.damage;
+        e.health -= dmg;
+        trackDamage(p.weaponId, dmg);
+        playEnemyHitSound();
+        addParticles(p.x, p.y, 10, p.color || "#ffffff", 2, 20);
+        if (p.ultra && p.ultraEffects.explode) {
+          // Blood orb explosion
+          enemies.concat(bosses).forEach(n => {
+            if (!n.alive || n === e) return;
+            if (distance(p.x, p.y, n.x, n.y) < 50) {
+              n.health -= dmg * 0.5;
+              trackDamage(p.weaponId, dmg * 0.5);
+              if (n.health <= 0) {
+                n.alive = false;
+                score += n.isBoss ? 10 * wave : 1;
+                gainXP(n.isBoss ? XP_PER_ENEMY * 3 * wave : n.xp);
+                updateScoreUI();
+                if (n.isBoss) spawnChest(n.x, n.y);
+              }
+            }
+          });
+        }
+        if (p.ultra && p.ultraEffects.chain) {
+          // Wraith chain effect
+          let nextTarget = enemies.concat(bosses).filter(n => n !== e && n.alive && distance(p.x, p.y, n.x, n.y) < 100).sort((a, b) => distance(p.x, p.y, a.x, a.y) - distance(p.x, p.y, b.x, b.y))[0];
+          if (nextTarget) {
+            p.target = nextTarget;
+            p.homing = true;
+            p.homingStrength = 0.3;
+          }
+        }
+        if (p.ultra && p.ultraEffects.ricochet && !p.hits.includes(e)) {
+          // Bone spear ricochet
+          p.hits.push(e);
+          let nextTarget = enemies.concat(bosses).filter(n => n !== e && n.alive && !p.hits.includes(n)).sort((a, b) => distance(p.x, p.y, a.x, a.y) - distance(p.x, p.y, b.x, b.y))[0];
+          if (nextTarget) {
+            p.target = nextTarget;
+            p.homing = true;
+            p.homingStrength = 0.3;
+          } else if (!p.piercing) {
+            projectiles.splice(i, 1);
+          }
+        }
+        if (p.ultra && p.ultraEffects.knockback) {
+          // Nova knockback
+          let dir = normalizeVector(e.x - p.x, e.y - p.y);
+          e.x += dir.x * 20;
+          e.y += dir.y * 20;
+        }
+        if (p.ultra && p.ultraEffects.burn) {
+          // Grave explosion burn
+          hazards.push({
+            x: e.x,
+            y: e.y,
+            size: 30,
+            damage: dmg / 3,
+            duration: 180,
+            type: 'burning',
+            color: "#ff8c00"
+          });
+        }
+        if (!p.piercing && !(p.ultra && p.ultraEffects.ricochet)) projectiles.splice(i, 1);
+        if (e.health <= 0) {
+          e.alive = false;
+          score += e.isBoss ? 10 * wave : 1;
+          gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+          updateScoreUI();
+          if (e.isBoss) spawnChest(e.x, e.y);
+        }
+      }
+    });
+  } else if (distance(p.x, p.y, player.x, player.y) < p.size / 2 + player.size / 2) {
+    player.health = Math.max(0, player.health - p.damage);
+    updateHealthUI();
+    projectiles.splice(i, 1);
+    if (player.health <= 0) {
+      player.health = 0;
+      updateHealthUI();
+      onGameOver();
+    }
+  }
+});
+summons.forEach((s, i) => {
+  s.life--;
+  s.health = Math.max(0, s.health);
+  if (s.life <= 0 || s.health <= 0) {
+    summons.splice(i, 1);
+    return;
+  }
+  s.attackCooldown--;
+  let closestTarget = null;
+  let minDist = Infinity;
+  bosses.concat(enemies).forEach(e => {
+    if (!e.alive) return;
+    let d = distance(s.x, s.y, e.x, e.y);
+    if (d < minDist) {
+      minDist = d;
+      closestTarget = e;
+    }
+  });
+  if (closestTarget) {
+    if (s.type === 'ghost' && s.attackCooldown <= 0) {
+      let angle = Math.atan2(closestTarget.y - s.y, closestTarget.x - s.x);
+      projectiles.push({
+        x: s.x,
+        y: s.y,
+        size: 6,
+        speed: 5,
+        dx: Math.cos(angle) * 5,
+        dy: Math.sin(angle) * 5,
+        damage: s.damage,
+        type: 'ghost_shot',
+        weaponId: 'ghost'
+      });
+      s.attackCooldown = SUMMON_TYPES.ghost.attackCooldown;
+      playAttackSound();
+    } else if (s.type === 'dragon' && s.attackCooldown <= 0) {
+      for (let i = 0; i < 3; i++) {
+        let angle = (i - 1) * 0.3;
+        projectiles.push({
+          x: s.x,
+          y: s.y,
+          size: 15,
+          speed: 6,
+          dx: Math.cos(angle) * 6,
+          dy: Math.sin(angle) * 6,
+          damage: s.damage,
+          type: 'dragon_fire',
+          piercing: true
+        });
+      }
+      s.attackCooldown = SUMMON_TYPES.dragon.attackCooldown;
+      playAttackSound();
+    } else if (s.type !== 'ghost' && s.type !== 'dragon') {
+      let dir = normalizeVector(closestTarget.x - s.x, closestTarget.y - s.y);
+      s.x += dir.x * s.speed;
+      s.y += dir.y * s.speed;
+      if (distance(s.x, s.y, closestTarget.x, closestTarget.y) < s.size / 2 + closestTarget.size / 2 && s.attackCooldown <= 0) {
+        let dmg = s.damage;
+        closestTarget.health -= dmg;
+        trackDamage(s.type, dmg);
+        playEnemyHitSound();
+        s.attackCooldown = SUMMON_TYPES[s.type].attackCooldown;
+        if (closestTarget.health <= 0) {
+          closestTarget.alive = false;
+          score += closestTarget.isBoss ? 10 * wave : 1;
+          gainXP(closestTarget.isBoss ? XP_PER_ENEMY * 3 * wave : closestTarget.xp);
+          updateScoreUI();
+          if (closestTarget.isBoss) {
+            spawnChest(closestTarget.x, closestTarget.y); // Boss always drops a chest
+          }
+        }
+      }
+    }
+  }
+});
+    chests.forEach((c, i) => {
+      c.sparkleTimer++;
+      if (c.sparkleTimer % 30 === 0) {
+        addParticles(c.x, c.y, 5, "#ffd700", 1, 30);
+      }
+      if (!c.picked && distance(c.x, c.y, player.x, player.y) < c.size / 2 + player.size / 2) {
+        c.picked = true;
+        upgradeRandomSkill();
+        chests.splice(i, 1);
+      }
+    });
+    relics.forEach((r, i) => {
+      if (!r.picked && distance(r.x, r.y, player.x, player.y) < r.size / 2 + player.size / 2) {
+        r.picked = true;
+        player.relics.push(r.type);
+        updateRelicsUI();
+        relics.splice(i, 1);
+        playRelicPickupSound();
+        addParticles(r.x, r.y, 15, "#ffd700", 2, 30);
+        if (r.type === 'health') {
+          player.maxHealth += RELIC_TYPES.health.multiplier;
+          player.health = Math.min(player.health + RELIC_TYPES.health.multiplier, player.maxHealth);
+          updateHealthUI();
+        }
+      }
+    });
+    hazards.forEach((h, i) => {
+      h.duration--;
+      if (h.dx) h.x += h.dx;
+      if (h.dy) h.y += h.dy;
+      if (h.duration <= 0 || h.x < -h.size || h.x > CANVAS_WIDTH + h.size || h.y < -h.size || h.y > CANVAS_HEIGHT + h.size) {
+        hazards.splice(i, 1);
+        return;
+      }
+      if (distance(h.x, h.y, player.x, player.y) < h.size / 2 + player.size / 2) {
+        player.health = Math.max(0, player.health - h.damage);
+        updateHealthUI();
+        if (player.health <= 0) {
+          player.health = 0;
+          updateHealthUI();
+          onGameOver();
+        }
+      }
+    });
+    particles.forEach((p, i) => {
+      p.x += p.dx;
+      p.y += p.dy;
+      p.life--;
+      if (p.life <= 0) particles.splice(i, 1);
+    });
+  }
+function draw() {
+  ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  // Draw player with sprite
+  ctx.save();
+  if (playerSprite.complete && playerSprite.naturalWidth > 0) {
+    ctx.drawImage(playerSprite, player.x - (player.size * 3) / 2, player.y - (player.size * 3) / 2, player.size * 3, player.size * 3);
+  } else {
+    console.warn('Player sprite not loaded, using fallback');
+    ctx.fillStyle = "#bada55";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "20px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("🧙", player.x, player.y + 6);
+  }
+  ctx.restore();
+
+  // Draw enemies
+  enemies.forEach(e => {
+    if (!e.alive) return;
+    ctx.fillStyle = e.color;
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, e.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "16px Arial";
+    ctx.fillText(e.type === 'minion' ? "👾" : "👹", e.x, e.y + 4);
+    ctx.fillStyle = "#ff0000";
+    ctx.fillRect(e.x - e.size / 2, e.y - e.size / 2 - 8, e.size * (e.health / e.maxHealth), 4);
+  });
+
+  // Draw bosses
+  bosses.forEach(b => {
+    if (!b.alive) return;
+    ctx.fillStyle = b.color;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "30px Arial";
+    ctx.fillText("😈", b.x, b.y + 10);
+    ctx.fillStyle = "#ff0000";
+    ctx.fillRect(b.x - b.size / 2, b.y - b.size / 2 - 12, b.size * (b.health / b.maxHealth), 6);
+  });
+
+summons.forEach(s => {
+  ctx.save();
+  if (s.ultra && s.ultraEffects.glow) ctx.filter = 'drop-shadow(0 0 8px ' + (s.color || '#ffffff') + ')';
+  if (s.type === 'skeleton' && skeletonSprite.complete && skeletonSprite.naturalWidth > 0) {
+    ctx.drawImage(skeletonSprite, s.x - (s.size * 3) / 2, s.y - (s.size * 3) / 2, s.size * 3, s.size * 3);
+  } else if (s.type === 'zombie' && zombieSprite.complete && zombieSprite.naturalWidth > 0) {
+    ctx.drawImage(zombieSprite, s.x - (s.size * 3) / 2, s.y - (s.size * 3) / 2, s.size * 3, s.size * 3);
+  } else if (s.type === 'golem' && golemSprite.complete && golemSprite.naturalWidth > 0) {
+    ctx.drawImage(golemSprite, s.x - (s.size * 3) / 2, s.y - (s.size * 3) / 2, s.size * 3, s.size * 3);
+  } else if (s.type === 'ghost' && ghostIdleSprite.complete && ghostShootingSprite.complete && ghostIdleSprite.naturalWidth > 0 && ghostShootingSprite.naturalWidth > 0) {
+    const isShooting = s.attackCooldown >= SUMMON_TYPES.ghost.attackCooldown - 15;
+    const sprite = isShooting ? ghostShootingSprite : ghostIdleSprite;
+    ctx.drawImage(sprite, s.x - (s.size * 3.5) / 2, s.y - (s.size * 3.5) / 2, s.size * 3.5, s.size * 3.5);
+  } else if (s.type.toLowerCase() === 'wraith' && wraithLeftSprite.complete && wraithRightSprite.complete && wraithStraightSprite.complete && wraithLeftSprite.naturalWidth > 0 && wraithRightSprite.naturalWidth > 0 && wraithStraightSprite.naturalWidth > 0) {
+    let sprite;
+    if (s.vx < -0.1) {
+      sprite = wraithLeftSprite;
+    } else if (s.vx > 0.1) {
+      sprite = wraithRightSprite;
+    } else {
+      sprite = wraithStraightSprite;
+    }
+    ctx.drawImage(sprite, s.x - (s.size * 48) / 2, s.y - (s.size * 48) / 2, s.size * 48, s.size * 48);
+  } else {
+    console.warn(`Summon type ${s.type} sprite not loaded or unrecognized, using fallback`);
+    ctx.fillStyle = s.color || "#ffffff";
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = s.type === 'dragon' ? "40px Arial" : "20px Arial";
+    ctx.fillText(s.emoji || "?", s.x, s.y + (s.type === 'dragon' ? 14 : 6));
+  }
+  const spriteScale = s.type === 'ghost' ? 3.5 : 3;
+  ctx.fillStyle = "#00ff00";
+  ctx.fillRect(s.x - (s.size * spriteScale) / 2, s.y - (s.size * spriteScale) / 2 - 12, s.size * spriteScale * (s.health / s.maxHealth), 4);
+  ctx.restore();
+});
+
+projectiles.forEach(p => {
+  ctx.save();
+  if (p.ultra && p.ultraEffects.glow) ctx.filter = 'drop-shadow(0 0 8px ' + (p.color || '#ffffff') + ')';
+  if (p.type === 'scythe' && scytheSprite.complete && scytheSprite.naturalWidth > 0) {
+    ctx.drawImage(scytheSprite, p.x - (p.size * 10) / 2, p.y - (p.size * 10) / 2, p.size * 10, p.size * 10);
+  } else if (p.type === 'bone' && boneSpearSprite.complete && boneSpearSprite.naturalWidth > 0) {
+    ctx.drawImage(boneSpearSprite, p.x - (p.size * 12) / 2, p.y - (p.size * 12) / 2, p.size * 12, p.size * 12);
+  } else if (p.type === 'wraith' && wraithLeftSprite.complete && wraithRightSprite.complete && wraithStraightSprite.complete && wraithLeftSprite.naturalWidth > 0 && wraithRightSprite.naturalWidth > 0 && wraithStraightSprite.naturalWidth > 0) {
+    let sprite;
+    if (p.dx < -0.1) {
+      sprite = wraithLeftSprite;
+    } else if (p.dx > 0.1) {
+      sprite = wraithRightSprite;
+    } else {
+      sprite = wraithStraightSprite;
+    }
+    ctx.drawImage(sprite, p.x - (p.size * 12) / 2, p.y - (p.size * 12) / 2, p.size * 12, p.size * 12);
+  } else {
+    console.warn(`Projectile type ${p.type} sprite not loaded or unrecognized, using fallback`);
+    ctx.fillStyle = p.color || (p.source === 'enemy' ? "#ff4500" : "#bada55");
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+});
+
+// Draw projectiles with sprites for scythe, bone spear, wraith; circles for others
+projectiles.forEach(p => {
+  ctx.save();
+  if (p.type === 'scythe' && scytheSprite.complete && scytheSprite.naturalWidth > 0) {
+    ctx.drawImage(scytheSprite, p.x - (p.size * 10) / 2, p.y - (p.size * 10) / 2, p.size * 10, p.size * 10);
+  } else if (p.type === 'bone' && boneSpearSprite.complete && boneSpearSprite.naturalWidth > 0) {
+    ctx.drawImage(boneSpearSprite, p.x - (p.size * 12) / 2, p.y - (p.size * 12) / 2, p.size * 12, p.size * 12);
+  } else if (p.type === 'wraith' && wraithLeftSprite.complete && wraithRightSprite.complete && wraithStraightSprite.complete && wraithLeftSprite.naturalWidth > 0 && wraithRightSprite.naturalWidth > 0 && wraithStraightSprite.naturalWidth > 0) {
+    // Use left, right, or straight sprite based on horizontal velocity
+    let sprite;
+    if (p.dx < -0.1) {
+      sprite = wraithLeftSprite;
+    } else if (p.dx > 0.1) {
+      sprite = wraithRightSprite;
+    } else {
+      sprite = wraithStraightSprite;
+    }
+    ctx.drawImage(sprite, p.x - (p.size * 12) / 2, p.y - (p.size * 12) / 2, p.size * 12, p.size * 12);
+  } else {
+    // Default rendering for explosion, nova, or other projectiles
+    console.warn(`Projectile type ${p.type} sprite not loaded or unrecognized, using fallback`);
+    ctx.fillStyle = p.color || (p.source === 'enemy' ? "#ff4500" : "#bada55");
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+});
+
+  // Draw chests
+  chests.forEach(c => {
+    ctx.fillStyle = "#ffd700";
+    ctx.beginPath();
+    ctx.rect(c.x - c.size / 2, c.y - c.size / 2, c.size, c.size);
+    ctx.fill();
+    ctx.fillStyle = "#8b4513";
+    ctx.font = "20px Arial";
+    ctx.fillText("📦", c.x, c.y + 6);
+  });
+
+  // Draw relics
+  relics.forEach(r => {
+    ctx.fillStyle = "#ffd700";
+    ctx.beginPath();
+    ctx.arc(r.x, r.y, r.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "16px Arial";
+    ctx.fillText("💎", r.x, r.y + 4);
+  });
+
+  // Draw hazards
+  hazards.forEach(h => {
+    ctx.fillStyle = h.color;
+    ctx.beginPath();
+    ctx.arc(h.x, h.y, h.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "16px Arial";
+    ctx.fillText(h.type === 'poison' ? "☣" : "⚡", h.x, h.y + 4);
+  });
+
+  // Draw particles
+  particles.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = p.life / p.maxLife;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  });
+}
+  function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+  function onGameOver() {
+    gameState = "gameover";
+    gameOverScreen.style.display = "block";
+    finalScoreEl.textContent = "Your Score: " + score.toLocaleString();
+    playGameOverSound();
+  }
+  function resizeCanvas() {
+    const container = document.getElementById("game-container");
+    canvas.width = Math.min(800, container.clientWidth);
+    canvas.height = Math.min(600, container.clientHeight);
+    player.x = canvas.width / 2;
+    player.y = canvas.height / 2;
+  }
+  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("keydown", e => {
+    if (e.key === "Escape" && gameState === "playing") {
+      gameState = "paused";
+      pauseScreen.style.display = "block";
+      updateSkillsList();
+      return;
+    }
+    if (gameState === "playing") {
+      keysPressed[e.key.toLowerCase()] = true;
+      if (e.key === " " && ultimateReady && ultimateCooldown <= 0) useUltimate();
+    }
+    if ((gameState === "menu" || gameState === "gameover" || gameState === "paused") && ['Enter', ' '].includes(e.key)) {
+      if (gameState === "menu") {
+        menu.style.display = "none";
+        gameState = "playing";
+        resetGame();
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        canvas.focus();
+      } else if (gameState === "gameover") {
+        gameOverScreen.style.display = "none";
+        gameState = "playing";
+        resetGame();
+        canvas.focus();
+      } else if (gameState === "paused") {
+        pauseScreen.style.display = "none";
+        gameState = "playing";
+        canvas.focus();
+      }
+    }
+  });
+  window.addEventListener("keyup", e => { keysPressed[e.key.toLowerCase()] = false; });
+  startBtn.addEventListener("click", () => {
+    menu.style.display = "none";
+    gameState = "playing";
+    resetGame();
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    canvas.focus();
+  });
+  restartBtn.addEventListener("click", () => {
+    gameOverScreen.style.display = "none";
+    gameState = "playing";
+    resetGame();
+    canvas.focus();
+  });
+  goMenuBtn.addEventListener("click", () => {
+    gameOverScreen.style.display = "none";
+    menu.style.display = "block";
+    gameState = "menu";
+  });
+  resumeBtn.addEventListener("click", () => {
+    pauseScreen.style.display = "none";
+    gameState = "playing";
+    canvas.focus();
+  });
+  restartFromPauseBtn.addEventListener("click", () => {
+    pauseScreen.style.display = "none";
+    gameState = "playing";
+    resetGame();
+    canvas.focus();
+  });
+  pauseBtn.addEventListener("click", () => {
+    if (gameState === "playing") {
+      gameState = "paused";
+      pauseScreen.style.display = "block";
+      updateSkillsList();
+    }
+  });
+  ultimateBtn.addEventListener("click", () => {
+    if (gameState === "playing" && ultimateReady && ultimateCooldown <= 0) useUltimate();
+  });
+  document.querySelectorAll(".dpad-btn").forEach(btn => {
+    btn.addEventListener("mousedown", () => {
+      let dir = btn.dataset.dir;
+      if (dir === "up") touchDirection.y = -1;
+      else if (dir === "down") touchDirection.y = 1;
+      else if (dir === "left") touchDirection.x = -1;
+      else if (dir === "right") touchDirection.x = 1;
+    });
+    btn.addEventListener("mouseup", () => {
+      let dir = btn.dataset.dir;
+      if (dir === "up" || dir === "down") touchDirection.y = 0;
+      else if (dir === "left" || dir === "right") touchDirection.x = 0;
+    });
+    btn.addEventListener("touchstart", e => {
+      e.preventDefault();
+      let dir = btn.dataset.dir;
+      if (dir === "up") touchDirection.y = -1;
+      else if (dir === "down") touchDirection.y = 1;
+      else if (dir === "left") touchDirection.x = -1;
+      else if (dir === "right") touchDirection.x = 1;
+    });
+    btn.addEventListener("touchend", e => {
+      e.preventDefault();
+      let dir = btn.dataset.dir;
+      if (dir === "up" || dir === "down") touchDirection.y = 0;
+      else if (dir === "left" || dir === "right") touchDirection.x = 0;
+    });
+  });
+  highScoreEl.textContent = highScore.toLocaleString();
+  resizeCanvas();
+  gameLoop();
+})();
+</script>
+</body>
+</html>
