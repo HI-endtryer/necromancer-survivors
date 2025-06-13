@@ -543,6 +543,19 @@ const scytheSprite = new Image();
 scytheSprite.src = 'scythe.png'; // Replace with your scythe projectile sprite path
 const boneSpearSprite = new Image();
 boneSpearSprite.src = 'bone_spear.png'; // Replace with your bone spear projectile sprite path
+// Add these sprite definitions near other sprite declarations (around line 750)
+const standardEnemySprite = new Image();
+standardEnemySprite.src = 'standard_enemy.png'; // Replace with your standard enemy sprite path
+const fastEnemySprite = new Image();
+fastEnemySprite.src = 'fast_enemy.png'; // Replace with your fast enemy sprite path
+const tankEnemySprite = new Image();
+tankEnemySprite.src = 'tank_enemy.png'; // Replace with your tank enemy sprite path
+const rangedEnemySprite = new Image();
+rangedEnemySprite.src = 'ranged_enemy.png'; // Replace with your ranged enemy sprite path
+const swarmEnemySprite = new Image();
+swarmEnemySprite.src = 'swarm_enemy.png'; // Replace with your swarm enemy sprite path
+const minionEnemySprite = new Image();
+minionEnemySprite.src = 'minion_enemy.png'; // Replace with your minion enemy sprite path
 
 const WEAPON_DATA = {
   skeleton: {
@@ -1918,19 +1931,43 @@ function draw() {
   }
   ctx.restore();
 
-  // Draw enemies
-  enemies.forEach(e => {
-    if (!e.alive) return;
-    ctx.fillStyle = e.color;
-    ctx.beginPath();
-    ctx.arc(e.x, e.y, e.size / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "16px Arial";
-    ctx.fillText(e.type === 'minion' ? "👾" : "👹", e.x, e.y + 4);
-    ctx.fillStyle = "#ff0000";
-    ctx.fillRect(e.x - e.size / 2, e.y - e.size / 2 - 8, e.size * (e.health / e.maxHealth), 4);
-  });
+enemies.forEach(e => {
+  if (!e.alive) return;
+  ctx.save();
+  let sprite;
+  let spriteScale = 3; // Increased scale for larger sprites
+  switch (e.type) {
+    case 'standard':
+      sprite = standardEnemySprite;
+      break;
+    case 'fast':
+      sprite = fastEnemySprite;
+      break;
+    case 'tank':
+      sprite = tankEnemySprite;
+      break;
+    case 'ranged':
+      sprite = rangedEnemySprite;
+      break;
+    case 'swarm':
+      sprite = swarmEnemySprite;
+      break;
+    case 'minion':
+      sprite = minionEnemySprite;
+      break;
+    default:
+      sprite = null;
+  }
+  if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+    ctx.drawImage(sprite, e.x - (e.size * spriteScale) / 2, e.y - (e.size * spriteScale) / 2, e.size * spriteScale, e.size * spriteScale);
+  } else {
+    // Skip drawing if sprite is not loaded (no fallback rendering)
+    console.warn(`Enemy type ${e.type} sprite not loaded, skipping render`);
+  }
+  ctx.fillStyle = "#ff0000";
+  ctx.fillRect(e.x - e.size / 2, e.y - e.size / 2 - 12, e.size * (e.health / e.maxHealth), 6); // Adjusted health bar size/position
+  ctx.restore();
+});
 
   // Draw bosses
   bosses.forEach(b => {
