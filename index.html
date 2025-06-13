@@ -1534,6 +1534,8 @@ summons.forEach((s, i) => {
     return;
   }
   s.attackCooldown--;
+
+  // Find the closest target (enemy or boss)
   let closestTarget = null;
   let minDist = Infinity;
   bosses.concat(enemies).forEach(e => {
@@ -1544,6 +1546,7 @@ summons.forEach((s, i) => {
       closestTarget = e;
     }
   });
+
   if (closestTarget) {
     if (s.ultra && s.ultraEffects.taunt) {
       // Zombies attract enemies
@@ -1552,6 +1555,7 @@ summons.forEach((s, i) => {
         if (distance(s.x, s.y, e.x, e.y) < 100) e.target = s;
       });
     }
+
     if (s.type === 'ghost' && s.attackCooldown <= 0) {
       let angle = Math.atan2(closestTarget.y - s.y, closestTarget.x - s.x);
       let shots = s.ultra && s.ultraEffects.dualShot ? 2 : 1;
@@ -1591,14 +1595,17 @@ summons.forEach((s, i) => {
       s.attackCooldown = SUMMON_TYPES.dragon.attackCooldown;
       playAttackSound();
     } else if (s.type !== 'ghost' && s.type !== 'dragon') {
+      // Move toward closest target for melee summons (skeleton, zombie, golem)
       let dir = normalizeVector(closestTarget.x - s.x, closestTarget.y - s.y);
       s.x += dir.x * s.speed;
       s.y += dir.y * s.speed;
+
       if (distance(s.x, s.y, closestTarget.x, closestTarget.y) < s.size / 2 + closestTarget.size / 2 && s.attackCooldown <= 0) {
         let dmg = s.damage;
         closestTarget.health -= dmg;
         trackDamage(s.type, dmg);
         playEnemyHitSound();
+
         if (s.ultra && s.ultraEffects.cleave) {
           // Skeleton cleave effect
           enemies.concat(bosses).forEach(e => {
@@ -1616,10 +1623,12 @@ summons.forEach((s, i) => {
             }
           });
         }
+
         if (s.ultra && s.ultraEffects.stun) {
           // Golem stun effect
           closestTarget.stunned = 60; // Stun for 1 second
         }
+
         s.attackCooldown = SUMMON_TYPES[s.type].attackCooldown;
         if (closestTarget.health <= 0) {
           closestTarget.alive = false;
