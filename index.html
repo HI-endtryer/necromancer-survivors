@@ -454,6 +454,9 @@
   const timerEl = document.getElementById("timer");
   const skillsList = document.getElementById("skills-list");
 
+const ENEMY_SPAWN_INCREASE_RATE = 0.5; // Increase enemies per wave over time
+const SPAWN_INTERVAL_DECREASE_RATE = 0.1; // Decrease spawn interval over time
+
   let gameState = "menu";
   const PLAYER_SIZE = 32;
   const ENEMY_SIZE = 28;
@@ -862,74 +865,74 @@ const WEAPON_DATA = {
     }
     updateXPUI();
   }
-  function openWeaponChoiceMenu() {
-    gameState = "levelup";
-    levelUpScreen.style.display = "block";
-    weaponChoicesContainer.innerHTML = "";
-    let weaponIds = Object.keys(WEAPON_DATA);
-    let choices = [];
-    let upgradedOrNew = [];
-    for (let wid in player.weapons) {
-      let w = player.weapons[wid];
-      if (w.level < WEAPON_DATA[wid].maxLevel || (w.level === WEAPON_DATA[wid].maxLevel && !w.ultra)) {
-        upgradedOrNew.push({ id: wid, upgrade: true });
-      }
+function openWeaponChoiceMenu() {
+  gameState = "levelup";
+  levelUpScreen.style.display = "block";
+  weaponChoicesContainer.innerHTML = "";
+  let weaponIds = Object.keys(WEAPON_DATA);
+  let choices = [];
+  let upgradedOrNew = [];
+  for (let wid in player.weapons) {
+    let w = player.weapons[wid];
+    if (w.level < WEAPON_DATA[wid].maxLevel || (w.level === WEAPON_DATA[wid].maxLevel && !w.ultra)) {
+      upgradedOrNew.push({ id: wid, upgrade: true });
     }
-    let locked = weaponIds.filter(wid => !(wid in player.weapons));
-    for (let i = 0; i < locked.length; i++) {
-      upgradedOrNew.push({ id: locked[i], upgrade: false });
-    }
-    for (let i = 0; i < 3; i++) {
-      if (upgradedOrNew.length === 0) break;
-      const idx = Math.floor(Math.random() * upgradedOrNew.length);
-      choices.push(upgradedOrNew[idx]);
-      upgradedOrNew.splice(idx, 1);
-    }
-    while (choices.length < 3) {
-      choices.push({ id: 'skeleton', upgrade: true });
-    }
-    choices.forEach(choice => {
-      let wId = choice.id;
-      let weaponData = WEAPON_DATA[wId];
-      let currentLevel = player.weapons[wId]?.level || 0;
-      let isUltra = player.weapons[wId]?.ultra || false;
-      let button = document.createElement("button");
-      button.className = "spell-choice";
-      button.tabIndex = 0;
-      let title = weaponData.name;
-      if (isUltra) title += " [ULTRA]";
-      else if (currentLevel > 0) title += " Lv." + currentLevel;
-      button.innerHTML = `<h4>${title}</h4><p>${choice.upgrade ? (isUltra ? "Already Ultra!" : (currentLevel === weaponData.maxLevel ? "Upgrade to Ultra" : "Upgrade Spell")) : "Unlock New Spell"}</p><small>${weaponData.description}</small>`;
-      button.onclick = () => {
-        if (choice.upgrade) {
-          if (isUltra) {
-            alert("Already at Ultra level!");
-            return;
-          }
-          if (currentLevel === weaponData.maxLevel) {
-            player.weapons[wId].ultra = true;
-            alert(`${weaponData.name} upgraded to ULTRA form!`);
-            playChestPickupSound();
-          } else {
-            player.weapons[wId].level++;
-            alert(`${weaponData.name} upgraded to level ${player.weapons[wId].level}!`);
-            playChestPickupSound();
-          }
-        } else {
-          if (player.weapons[wId]) {
-            alert("Spell already unlocked.");
-          } else {
-            player.weapons[wId] = { level: 1, ultra: false, cooldown: 0, damageDealt: 0 };
-            player.damageDealt[wId] = 0;
-            alert(`${weaponData.name} unlocked!`);
-            playChestPickupSound();
-          }
-        }
-        closeWeaponChoiceMenu();
-      };
-      weaponChoicesContainer.appendChild(button);
-    });
   }
+  let locked = weaponIds.filter(wid => !(wid in player.weapons));
+  for (let i = 0; i < locked.length; i++) {
+    upgradedOrNew.push({ id: locked[i], upgrade: false });
+  }
+  for (let i = 0; i < 3; i++) {
+    if (upgradedOrNew.length === 0) break;
+    const idx = Math.floor(Math.random() * upgradedOrNew.length);
+    choices.push(upgradedOrNew[idx]);
+    upgradedOrNew.splice(idx, 1);
+  }
+  while (choices.length < 3) {
+    choices.push({ id: 'skeleton', upgrade: true });
+  }
+  choices.forEach(choice => {
+    let wId = choice.id;
+    let weaponData = WEAPON_DATA[wId];
+    let currentLevel = player.weapons[wId]?.level || 0;
+    let isUltra = player.weapons[wId]?.ultra || false;
+    let button = document.createElement("button");
+    button.className = "spell-choice";
+    button.tabIndex = 0;
+    let title = weaponData.name;
+    if (isUltra) title += " [ULTRA]";
+    else if (currentLevel > 0) title += " Lv." + currentLevel;
+    button.innerHTML = `<h4>${title}</h4><p>${choice.upgrade ? (isUltra ? "Already Ultra!" : (currentLevel === weaponData.maxLevel ? "Upgrade to Ultra" : "Upgrade Spell")) : "Unlock New Spell"}</p><small>${weaponData.description}</small>`;
+    button.onclick = () => {
+      if (choice.upgrade) {
+        if (isUltra) {
+          // alert("Already at Ultra level!"); // Removed notification
+          return;
+        }
+        if (currentLevel === weaponData.maxLevel) {
+          player.weapons[wId].ultra = true;
+          // alert(`${weaponData.name} upgraded to ULTRA form!`); // Removed notification
+          // playChestPickupSound(); // Optionally remove sound
+        } else {
+          player.weapons[wId].level++;
+          // alert(`${weaponData.name} upgraded to level ${player.weapons[wId].level}!`); // Removed notification
+          // playChestPickupSound(); // Optionally remove sound
+        }
+      } else {
+        if (player.weapons[wId]) {
+          // alert("Spell already unlocked."); // Removed notification
+        } else {
+          player.weapons[wId] = { level: 1, ultra: false, cooldown: 0, damageDealt: 0 };
+          player.damageDealt[wId] = 0;
+          // alert(`${weaponData.name} unlocked!`); // Removed notification
+          // playChestPickupSound(); // Optionally remove sound
+        }
+      }
+      closeWeaponChoiceMenu();
+    };
+    weaponChoicesContainer.appendChild(button);
+  });
+}
   function closeWeaponChoiceMenu() {
     levelUpScreen.style.display = "none";
     gameState = "playing";
@@ -1322,33 +1325,33 @@ function autoAttack() {
     playUltimateSound();
     addParticles(player.x, player.y, 30, "#ff4500", 5, 60);
   }
-  function upgradeRandomSkill() {
-    let weaponIds = Object.keys(player.weapons).filter(wid => !player.weapons[wid].ultra);
-    if (weaponIds.length === 0) {
-      let locked = Object.keys(WEAPON_DATA).filter(wid => !(wid in player.weapons));
-      if (locked.length > 0) {
-        let wId = locked[Math.floor(Math.random() * locked.length)];
-        player.weapons[wId] = { level: 1, ultra: false, cooldown: 0, damageDealt: 0 };
-        player.damageDealt[wId] = 0;
-        alert(`${WEAPON_DATA[wId].name} unlocked!`);
-        playChestPickupSound();
-      }
-      return;
+function upgradeRandomSkill() {
+  let weaponIds = Object.keys(player.weapons).filter(wid => !player.weapons[wid].ultra);
+  if (weaponIds.length === 0) {
+    let locked = Object.keys(WEAPON_DATA).filter(wid => !(wid in player.weapons));
+    if (locked.length > 0) {
+      let wId = locked[Math.floor(Math.random() * locked.length)];
+      player.weapons[wId] = { level: 1, ultra: false, cooldown: 0, damageDealt: 0 };
+      player.damageDealt[wId] = 0;
+      // alert(`${WEAPON_DATA[wId].name} unlocked!`); // Removed notification
+      // playChestPickupSound(); // Optionally remove sound
     }
-    let wId = weaponIds[Math.floor(Math.random() * weaponIds.length)];
-    let weapon = player.weapons[wId];
-    let data = WEAPON_DATA[wId];
-    if (weapon.level < data.maxLevel) {
-      weapon.level++;
-      alert(`${data.name} upgraded to level ${weapon.level}!`);
-      playChestPickupSound();
-    } else if (weapon.level === data.maxLevel && !weapon.ultra) {
-      weapon.ultra = true;
-      alert(`${data.name} upgraded to ULTRA form!`);
-      addParticles(player.x, player.y, data.ultraVisual.particleCount, data.ultraVisual.color, 4, 60);
-      playChestPickupSound();
-    }
+    return;
   }
+  let wId = weaponIds[Math.floor(Math.random() * weaponIds.length)];
+  let weapon = player.weapons[wId];
+  let data = WEAPON_DATA[wId];
+  if (weapon.level < data.maxLevel) {
+    weapon.level++;
+    // alert(`${data.name} upgraded to level ${weapon.level}!`); // Removed notification
+    // playChestPickupSound(); // Optionally remove sound
+  } else if (weapon.level === data.maxLevel && !weapon.ultra) {
+    weapon.ultra = true;
+    // alert(`${data.name} upgraded to ULTRA form!`); // Removed notification
+    addParticles(player.x, player.y, data.ultraVisual.particleCount, data.ultraVisual.color, 4, 60);
+    // playChestPickupSound(); // Optionally remove sound
+  }
+}
   function update() {
     if (gameState !== "playing") {
       if (gameState === "paused") updateSkillsList();
@@ -1379,18 +1382,20 @@ function autoAttack() {
     player.x = clamp(player.x, player.size / 2, CANVAS_WIDTH - player.size / 2);
     player.y = clamp(player.y, player.size / 2, CANVAS_HEIGHT - player.size / 2);
     autoAttack();
-    if (spawnTimer >= spawnInterval) {
-      if (enemiesToSpawn > 0) {
-        spawnEnemy();
-        enemiesToSpawn--;
-        spawnTimer = 0;
-      } else if (enemies.filter(e => e.alive).length === 0 && bosses.filter(b => b.alive).length === 0) {
-        wave++;
-        enemiesToSpawn = 5 + Math.floor(wave * 4.5); // Increased from wave * 3 to wave * 4.5 for more enemies
-        spawnInterval = Math.max(20, 90 - Math.floor(wave * 1.5)); // Decreased faster, from wave / 3 to wave * 1.5, min 20
-        if (wave % 5 === 0) spawnHazard();
-      }
-    }
+if (spawnTimer >= spawnInterval) {
+  if (enemiesToSpawn > 0) {
+    spawnEnemy();
+    enemiesToSpawn--;
+    spawnTimer = 0;
+  } else if (enemies.filter(e => e.alive).length === 0 && bosses.filter(b => b.alive).length === 0) {
+    wave++;
+    // Increase enemiesToSpawn based on wave and gameTimer for more enemies over time
+    enemiesToSpawn = Math.floor(5 + wave * 4.5 + gameTimer / 100); // Adds ~1 enemy per minute
+    // Decrease spawn interval over time, minimum 20 frames
+    spawnInterval = Math.max(20, 90 - Math.floor(wave * 1.5 + gameTimer / 7200)); // Decreases faster with time
+    if (wave % 5 === 0) spawnHazard();
+  }
+}
     if (bossTimer >= BOSS_INTERVAL) {
       bossTimer = 0;
       spawnBoss();
@@ -1435,7 +1440,7 @@ function autoAttack() {
         if (e.type === 'minion' && target !== player && distance(e.x, e.y, target.x, target.y) < e.size / 2 + target.size / 2 && e.attackCooldown <= 0) {
           target.health -= e.damage;
           e.attackCooldown = ENEMY_TYPES.minion.attackCooldown;
-          if (target.health <= 0) {
+          if (target.health <= 2) {
             target.alive = false;
             score += 1;
             gainXP(target.xp);
