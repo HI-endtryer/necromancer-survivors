@@ -1414,36 +1414,66 @@ if (['skeleton', 'zombie', 'ghost', 'golem', 'shadow'].includes(wId)) {
         }
         addParticles(player.x, player.y, visual.particleCount, visual.color || "#483d8b", 3, 25);
         playAttackSound();
-      } else if (wId === 'grave') {
-        let count = weapon.ultra ? data.ultraBonus.explosionCount : Math.floor(explosionCount);
-        let targets = enemies.concat(bosses).filter(e => e.alive).sort(() => Math.random() - 0.5).slice(0, count);
-        targets.forEach(e => {
-          projectiles.push({
-            x: e.x,
-            y: e.y,
-            size: (weapon.ultra ? radius * data.ultraBonus.radiusMultiplier : radius) * visual.sizeMultiplier,
-            damage: damage,
-            life: 30,
-            type: 'explosion',
-            weaponId: wId,
-            ultra: weapon.ultra,
-            ultraEffects: weapon.ultra ? data.ultraBonus : {}
+} else if (wId === 'grave') {
+  let count = weapon.ultra ? data.ultraBonus.explosionCount : Math.floor(explosionCount);
+  let targets = enemies.concat(bosses).filter(e => e.alive).sort(() => Math.random() - 0.5).slice(0, count);
+  if (targets.length > 0) {
+    console.log(`Grave Explosion triggered: ${count} explosions at level ${lvl}, ultra: ${weapon.ultra}`); // Debug log
+    targets.forEach(e => {
+      projectiles.push({
+        x: e.x,
+        y: e.y,
+        size: (weapon.ultra ? radius * data.ultraBonus.radiusMultiplier : radius) * visual.sizeMultiplier,
+        damage: damage,
+        life: 10, // Short life for quick explosion
+        type: 'explosion',
+        weaponId: wId,
+        ultra: weapon.ultra,
+        ultraEffects: weapon.ultra ? data.ultraBonus : {}
+      });
+      addParticles(e.x, e.y, visual.particleCount, visual.color || '#ff4500', 5, 40);
+      playAttackSound();
+      // Immediate damage application for reliability
+      enemies.concat(bosses).forEach(n => {
+        if (!n.alive || distance(e.x, e.y, n.x, n.y) > radius) return;
+        let dmg = damage;
+        n.health -= dmg;
+        trackDamage(wId, dmg);
+        addDamageNumber(n.x, n.y, dmg, visual.color || '#ff4500');
+        if (weapon.ultra && data.ultraBonus.burn) {
+          hazards.push({
+            x: n.x,
+            y: n.y,
+            size: 30,
+            damage: dmg / 3,
+            duration: 180,
+            type: 'burning',
+            color: '#ff8c00'
           });
-          if (player.weapons.chains) {
-            hazards.push({
-              x: e.x,
-              y: e.y,
-              size: radius / 2,
-              damage: damage / 3,
-              duration: 180,
-              type: 'burning',
-              color: "#ff8c00"
-            });
-          }
-          addParticles(e.x, e.y, visual.particleCount, visual.color || "#ff4500", 5, 40);
-          playAttackSound();
+        }
+        if (n.health <= 2) {
+          n.alive = false;
+          score += n.isBoss ? 10 * wave : 1;
+          gainXP(n.isBoss ? XP_PER_ENEMY * 3 * wave : n.xp);
+          updateScoreUI();
+          if (n.isBoss) spawnChest(n.x, n.y);
+        }
+      });
+      if (player.weapons.chains) {
+        hazards.push({
+          x: e.x,
+          y: e.y,
+          size: radius / 2,
+          damage: damage / 3,
+          duration: 180,
+          type: 'burning',
+          color: '#ff8c00'
         });
-      } else if (wId === 'chains') {
+      }
+    });
+  }
+  weapon.cooldown = cd;
+} else if (wId === 'chains') {
         enemies.concat(bosses).forEach(e => {
           if (!e.alive || distance(player.x, player.y, e.x, e.y) > radius) return;
           let dmg = damage / 60;
@@ -2083,164 +2113,96 @@ if (s.type === 'shadow' && s.teleportCooldown <= 0 && minDist > 50) {
         }
     }
 });
- projectiles.forEach((p, i) => {
-    if (p.returnTime) {
-      p.returnTime--;
-      if (p.returnTime <= 0) {
-        let dir = normalizeVector(player.x - p.x, player.y - p.y);
-        p.dx = dir.x * p.speed;
-        p.dy = dir.y * p.speed;
-      }
+projectiles.forEach((p, i) => {
+  if (p.returnTime) {
+    p.returnTime--;
+    if (p.returnTime <= 0) {
+      let dir = normalizeVector(player.x - p.x, player.y - p.y);
+      p.dx = dir.x * p.speed;
+      p.dy = dir.y * p.speed;
     }
-    p.x += p.dx;
-    p.y += p.dy;
-    if (p.homing && p.target && p.target.alive) {
-      let dir = normalizeVector(p.target.x - p.x, p.target.y - p.y);
-      p.dx += dir.x * p.homingStrength;
-      p.dy += dir.y * p.homingStrength;
-      let speed = Math.sqrt(p.dx * p.dx + p.dy * p.dy);
-      if (speed > p.speed) {
-        let norm = normalizeVector(p.dx, p.dy);
-        p.dx = norm.x * p.speed;
-        p.dy = norm.y * p.speed;
-      }
-    } else if (p.homing && (!p.target || !p.target.alive)) {
-      let closest = null;
-      let minDist = 200;
-      enemies.concat(bosses).forEach(e => {
-        if (!e.alive) return;
-        let d = distance(p.x, p.y, e.x, e.y);
-        if (d < minDist) {
-          minDist = d;
-          closest = e;
-        }
-      });
-      p.target = closest;
+  }
+  p.x += p.dx || 0;
+  p.y += p.dy || 0;
+  if (p.homing && p.target && p.target.alive) {
+    let dir = normalizeVector(p.target.x - p.x, p.target.y - p.y);
+    p.dx += dir.x * p.homingStrength;
+    p.dy += dir.y * p.homingStrength;
+    let speed = Math.sqrt(p.dx * p.dx + p.dy * p.dy);
+    if (speed > p.speed) {
+      let norm = normalizeVector(p.dx, p.dy);
+      p.dx = norm.x * p.speed;
+      p.dy = norm.y * p.speed;
     }
-    if (p.type === 'explosion' || p.type === 'nova' || p.type === 'plague' || p.type === 'banshee') {
-      p.life--;
-      if (p.life <= 0) {
-        projectiles.splice(i, 1);
-        return;
+  } else if (p.homing && (!p.target || !p.target.alive)) {
+    let closest = null;
+    let minDist = 200;
+    enemies.concat(bosses).forEach(e => {
+      if (!e.alive) return;
+      let d = distance(p.x, p.y, e.x, e.y);
+      if (d < minDist) {
+        minDist = d;
+        closest = e;
       }
-    }
-    if (p.x < -p.size || p.x > CANVAS_WIDTH + p.size || p.y < -p.size || p.y > CANVAS_HEIGHT + p.size) {
+    });
+    p.target = closest;
+  }
+  if (p.type === 'explosion' || p.type === 'nova' || p.type === 'plague' || p.type === 'banshee') {
+    p.life--;
+    if (p.life <= 0) {
       projectiles.splice(i, 1);
       return;
     }
-    if (p.source !== 'enemy') {
-      enemies.concat(bosses).forEach(e => {
-        if (!e.alive) return;
-        if (p.type === 'plague' && distance(p.x, p.y, e.x, e.y) < p.size / 2) {
+  }
+  if (p.x < -p.size || p.x > CANVAS_WIDTH + p.size || p.y < -p.size || p.y > CANVAS_HEIGHT + p.size) {
+    projectiles.splice(i, 1);
+    return;
+  }
+  if (p.source !== 'enemy') {
+    enemies.concat(bosses).forEach(e => {
+      if (!e.alive) return;
+      if (p.type === 'plague' && distance(p.x, p.y, e.x, e.y) < p.size / 2) {
+        let dmg = p.damage;
+        e.health -= dmg;
+        e.speed *= (1 - p.slow);
+        trackDamage(p.weaponId, dmg);
+        addDamageNumber(e.x, e.y, dmg, p.color || '#3f6b2f');
+        addParticles(e.x, e.y, 5, p.color || '#3f6b2f', 2, 20);
+        if (p.ultra && p.ultraEffects.infect && e.health <= 2) {
+          projectiles.push({
+            x: e.x,
+            y: e.y,
+            size: p.size / 2,
+            damage: p.damage / 2,
+            duration: p.duration / 2,
+            slow: p.slow / 2,
+            life: p.life / 2,
+            type: 'plague',
+            weaponId: p.weaponId,
+            ultra: p.ultra,
+            ultraEffects: p.ultraEffects
+          });
+        }
+        if (e.health <= 2) {
+          e.alive = false;
+          score += e.isBoss ? 10 * wave : 1;
+          gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+          updateScoreUI();
+          if (e.isBoss) spawnChest(e.x, e.y);
+        }
+      } else if (p.type === 'banshee') {
+        let dist = distance(p.x, p.y, e.x, e.y);
+        let angleToEnemy = Math.atan2(e.y - p.y, e.x - p.x);
+        let angleDiff = Math.abs(Math.atan2(p.dy, p.dx) - angleToEnemy);
+        if (angleDiff > Math.PI) angleDiff = 2 * Math.PI - angleDiff;
+        if (dist < p.size / 2 + e.size / 2 && angleDiff < Math.PI / 4) {
           let dmg = p.damage;
           e.health -= dmg;
-          e.speed *= (1 - p.slow);
+          e.fear = p.fearDuration;
+          if (p.ultra && p.ultraEffects.silence) e.silenced = p.fearDuration;
           trackDamage(p.weaponId, dmg);
-          addDamageNumber(e.x, e.y, dmg, p.color || '#3f6b2f');
-          addParticles(e.x, e.y, 5, p.color || "#3f6b2f", 2, 20);
-          if (p.ultra && p.ultraEffects.infect && e.health <= 2) {
-            projectiles.push({
-              x: e.x,
-              y: e.y,
-              size: p.size / 2,
-              damage: p.damage / 2,
-              duration: p.duration / 2,
-              slow: p.slow / 2,
-              life: p.life / 2,
-              type: 'plague',
-              weaponId: p.weaponId,
-              ultra: p.ultra,
-              ultraEffects: p.ultraEffects
-            });
-          }
-          if (e.health <= 2) {
-            e.alive = false;
-            score += e.isBoss ? 10 * wave : 1;
-            gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
-            updateScoreUI();
-            if (e.isBoss) spawnChest(e.x, e.y);
-          }
-        } else if (p.type === 'banshee') {
-          let dist = distance(p.x, p.y, e.x, e.y);
-          let angleToEnemy = Math.atan2(e.y - p.y, e.x - p.x);
-          let angleDiff = Math.abs(Math.atan2(p.dy, p.dx) - angleToEnemy);
-          if (angleDiff > Math.PI) angleDiff = 2 * Math.PI - angleDiff;
-          if (dist < p.size / 2 + e.size / 2 && angleDiff < Math.PI / 4) {
-            let dmg = p.damage;
-            e.health -= dmg;
-            e.fear = p.fearDuration;
-            if (p.ultra && p.ultraEffects.silence) e.silenced = p.fearDuration;
-            trackDamage(p.weaponId, dmg);
-            addDamageNumber(e.x, e.y, dmg, p.color || '#6b2f6b');
-            addParticles(e.x, e.y, 10, p.color || "#6b2f6b", 2, 20);
-            if (e.health <= 2) {
-              e.alive = false;
-              score += e.isBoss ? 10 * wave : 1;
-              gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
-              updateScoreUI();
-              if (e.isBoss) spawnChest(e.x, e.y);
-            }
-          }
-        } else if (distance(p.x, p.y, e.x, e.y) < p.size / 2 + e.size / 2) {
-          let dmg = p.damage;
-          e.health -= dmg;
-          trackDamage(p.weaponId, dmg);
-          playEnemyHitSound();
-          addDamageNumber(e.x, e.y, dmg, p.color || '#ffffff');
-          addParticles(p.x, p.y, 10, p.color || "#ffffff", 2, 20);
-          if (p.ultra && p.ultraEffects.explode) {
-            enemies.concat(bosses).forEach(n => {
-              if (!n.alive || n === e) return;
-              if (distance(p.x, p.y, n.x, n.y) < 50) {
-                n.health -= dmg * 0.5;
-                trackDamage(p.weaponId, dmg * 0.5);
-                addDamageNumber(n.x, n.y, dmg * 0.5, p.color || '#ffffff');
-                if (n.health <= 2) {
-                  n.alive = false;
-                  score += n.isBoss ? 10 * wave : 1;
-                  gainXP(n.isBoss ? XP_PER_ENEMY * 3 * wave : n.xp);
-                  updateScoreUI();
-                  if (n.isBoss) spawnChest(n.x, n.y);
-                }
-              }
-            });
-          }
-          if (p.ultra && p.ultraEffects.chain) {
-            let nextTarget = enemies.concat(bosses).filter(n => n !== e && n.alive && distance(p.x, p.y, n.x, n.y) < 100).sort((a, b) => distance(p.x, p.y, a.x, a.y) - distance(p.x, p.y, b.x, b.y))[0];
-            if (nextTarget) {
-              p.target = nextTarget;
-              p.homing = true;
-              p.homingStrength = 0.3;
-            }
-          }
-          if (p.ultra && p.ultraEffects.ricochet && !p.hits.includes(e)) {
-            p.hits.push(e);
-            let nextTarget = enemies.concat(bosses).filter(n => n !== e && n.alive && !p.hits.includes(n)).sort((a, b) => distance(p.x, p.y, a.x, a.y) - distance(p.x, p.y, b.x, b.y))[0];
-            if (nextTarget) {
-              p.target = nextTarget;
-              p.homing = true;
-              p.homingStrength = 0.3;
-            } else if (!p.piercing) {
-              projectiles.splice(i, 1);
-            }
-          }
-          if (p.ultra && p.ultraEffects.knockback) {
-            let dir = normalizeVector(e.x - p.x, e.y - p.y);
-            e.x += dir.x * 20;
-            e.y += dir.y * 20;
-          }
-          if (p.ultra && p.ultraEffects.burn) {
-            hazards.push({
-              x: e.x,
-              y: e.y,
-              size: 30,
-              damage: dmg / 3,
-              duration: 180,
-              type: 'burning',
-              color: "#ff8c00"
-            });
-          }
-          if (!p.piercing && !(p.ultra && p.ultraEffects.ricochet)) projectiles.splice(i, 1);
+          addDamageNumber(e.x, e.y, dmg, p.color || '#6b2f6b');
+          addParticles(e.x, e.y, 10, p.color || '#6b2f6b', 2, 20);
           if (e.health <= 2) {
             e.alive = false;
             score += e.isBoss ? 10 * wave : 1;
@@ -2249,19 +2211,86 @@ if (s.type === 'shadow' && s.teleportCooldown <= 0 && minDist > 50) {
             if (e.isBoss) spawnChest(e.x, e.y);
           }
         }
-      });
-    } else if (distance(p.x, p.y, player.x, player.y) < p.size / 2 + player.size / 2) {
-      player.health = Math.max(0, player.health - p.damage);
-      updateHealthUI();
-      projectiles.splice(i, 1);
-      if (player.health <= 0) {
-        player.health = 0;
-        updateHealthUI();
-        onGameOver();
+      } else if (distance(p.x, p.y, e.x, e.y) < p.size / 2 + e.size / 2) {
+        let dmg = p.damage;
+        e.health -= dmg;
+        trackDamage(p.weaponId, dmg);
+        playEnemyHitSound();
+        addDamageNumber(e.x, e.y, dmg, p.color || '#ffffff');
+        addParticles(p.x, p.y, 10, p.color || '#ffffff', 2, 20);
+        if (p.ultra && p.ultraEffects.explode) {
+          enemies.concat(bosses).forEach(n => {
+            if (!n.alive || n === e) return;
+            if (distance(p.x, p.y, n.x, n.y) < 50) {
+              n.health -= dmg * 0.5;
+              trackDamage(p.weaponId, dmg * 0.5);
+              addDamageNumber(n.x, n.y, dmg * 0.5, p.color || '#ffffff');
+              if (n.health <= 2) {
+                n.alive = false;
+                score += n.isBoss ? 10 * wave : 1;
+                gainXP(n.isBoss ? XP_PER_ENEMY * 3 * wave : n.xp);
+                updateScoreUI();
+                if (n.isBoss) spawnChest(n.x, n.y);
+              }
+            }
+          });
+        }
+        if (p.ultra && p.ultraEffects.chain) {
+          let nextTarget = enemies.concat(bosses).filter(n => n !== e && n.alive && distance(p.x, p.y, n.x, n.y) < 100).sort((a, b) => distance(p.x, p.y, a.x, a.y) - distance(p.x, p.y, b.x, b.y))[0];
+          if (nextTarget) {
+            p.target = nextTarget;
+            p.homing = true;
+            p.homingStrength = 0.3;
+          }
+        }
+        if (p.ultra && p.ultraEffects.ricochet && !p.hits.includes(e)) {
+          p.hits.push(e);
+          let nextTarget = enemies.concat(bosses).filter(n => n !== e && n.alive && !p.hits.includes(n)).sort((a, b) => distance(p.x, p.y, a.x, a.y) - distance(p.x, p.y, b.x, b.y))[0];
+          if (nextTarget) {
+            p.target = nextTarget;
+            p.homing = true;
+            p.homingStrength = 0.3;
+          } else if (!p.piercing) {
+            projectiles.splice(i, 1);
+          }
+        }
+        if (p.ultra && p.ultraEffects.knockback) {
+          let dir = normalizeVector(e.x - p.x, e.y - p.y);
+          e.x += dir.x * 20;
+          e.y += dir.y * 20;
+        }
+        if (p.ultra && p.ultraEffects.burn) {
+          hazards.push({
+            x: e.x,
+            y: e.y,
+            size: 30,
+            damage: dmg / 3,
+            duration: 180,
+            type: 'burning',
+            color: '#ff8c00'
+          });
+        }
+        if (!p.piercing && !(p.ultra && p.ultraEffects.ricochet)) projectiles.splice(i, 1);
+        if (e.health <= 2) {
+          e.alive = false;
+          score += e.isBoss ? 10 * wave : 1;
+          gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+          updateScoreUI();
+          if (e.isBoss) spawnChest(e.x, e.y);
+        }
       }
+    });
+  } else if (distance(p.x, p.y, player.x, player.y) < p.size / 2 + player.size / 2) {
+    player.health = Math.max(0, player.health - p.damage);
+    updateHealthUI();
+    projectiles.splice(i, 1);
+    if (player.health <= 0) {
+      player.health = 0;
+      updateHealthUI();
+      onGameOver();
     }
-  });
-
+  }
+});
 summons.forEach((s, i) => {
   s.life--;
   s.health = Math.max(0, s.health);
@@ -2695,7 +2724,8 @@ projectiles.forEach(p => {
     ctx.drawImage(plagueMiasmaSprite, p.x - (p.size * 2) / 2, p.y - (p.size * 2) / 2, p.size * 2, p.size * 2);
   } else if (p.type === 'banshee' && bansheeScreamSprite.complete && bansheeScreamSprite.naturalWidth > 0) {
     ctx.drawImage(bansheeScreamSprite, p.x - (p.size * 6) / 2, p.y - (p.size * 6) / 2, p.size * 6, p.size * 6);
-  } else {
+  } 
+  else {
     console.warn(`Projectile type ${p.type} sprite not loaded or unrecognized, using fallback`);
     ctx.fillStyle = p.color || (p.source === 'enemy' ? "#bb1111" : "");
     ctx.beginPath();
