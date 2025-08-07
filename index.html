@@ -22,11 +22,11 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #1a1a1a; /* Near-black for dungeon depth */
+  background: #1a1a1a;
   overflow: hidden;
   position: relative;
-  border: 4px solid #2a2a2a; /* Crisp border instead of vignette */
-  image-rendering: pixelated; /* Ensure pixel art clarity */
+  border: 4px solid #2a2a2a;
+  image-rendering: pixelated;
 }
 
 /* Subtle shadow overlay for dungeon atmosphere */
@@ -37,38 +37,69 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(10, 10, 10, 0.3); /* Lightened haze */
+  background: rgba(10, 10, 10, 0.3);
   pointer-events: none;
   z-index: 1;
 }
 
 /* Canvas styling */
 #game-canvas {
-  border: 4px solid #2a2a2a; /* Dark gray border */
-  background: #151515; /* Dark stone-like base */
+  border: 4px solid #2a2a2a;
+  background: #151515;
   max-width: 80vw;
   max-height: 80vh;
-  width: 1200px; /* Large canvas */
+  width: 1200px;
   height: 800px;
-  image-rendering: pixelated; /* Sharp pixel art */
+  image-rendering: pixelated;
 }
 
 /* Menu and screen styles */
-#menu, #game-over-screen, #pause-screen, #level-up-screen {
+#menu, #game-over-screen, #pause-screen, #level-up-screen, #tutorial-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: url('https://www.transparenttextures.com/patterns/pixel-pattern.png'), #1c1c1c; /* Pixelated stone texture */
+  background: url('https://www.transparenttextures.com/patterns/pixel-pattern.png'), #1c1c1c;
   padding: 60px 80px;
   border: 4px solid #2a2a2a;
   z-index: 20;
   text-align: center;
-  color: #d9c4a6; /* Parchment off-white */
-  animation: torchFlicker 2s steps(4) infinite; /* Choppy pixel animation */
+  color: #d9c4a6;
+  animation: torchFlicker 2s steps(4) infinite;
   max-width: 95%;
   width: 800px;
   image-rendering: pixelated;
+}
+
+/* Tutorial overlay specific styles */
+#tutorial-overlay {
+  padding: 40px;
+  width: 600px;
+  z-index: 25;
+}
+
+#tutorial-overlay p {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8rem;
+  color: #bbb;
+  margin-bottom: 20px;
+}
+
+#tutorial-overlay button {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8rem;
+  background: #252525;
+  color: #d9c4a6;
+  border: 3px solid #2a2a2a;
+  padding: 10px 30px;
+  cursor: pointer;
+  transition: all 0.2s steps(4);
+}
+
+#tutorial-overlay button:hover {
+  background: #353535;
+  border-color: #8b0000;
+  transform: translateY(-4px);
 }
 
 /* Pixelated torch flicker animation */
@@ -85,18 +116,18 @@
 }
 
 /* Headings */
-#menu h2, #game-over-screen h2, #pause-screen h2, #level-up-screen h2 {
+#menu h2, #game-over-screen h2, #pause-screen h2, #level-up-screen h2, #tutorial-overlay h2 {
   font-family: 'Press Start 2P', cursive;
-  font-size: 2rem; /* Smaller for pixel font readability */
+  font-size: 2rem;
   margin-bottom: 40px;
   color: #d9c4a6;
-  text-shadow: 2px 2px 0 #8b0000; /* Pixelated red shadow */
+  text-shadow: 2px 2px 0 #8b0000;
   letter-spacing: 2px;
   line-height: 1.2;
 }
 
 /* Pixelated blood-drip effect for headings */
-#menu h2::after, #game-over-screen h2::after, #pause-screen h2::after, #level-up-screen h2::after {
+#menu h2::after, #game-over-screen h2::after, #pause-screen h2::after, #level-up-screen h2::after, #tutorial-overlay h2::after {
   content: '';
   position: absolute;
   bottom: -8px;
@@ -104,21 +135,21 @@
   transform: translateX(-50%);
   width: 40%;
   height: 4px;
-  background: #8b0000; /* Solid red for pixel art */
+  background: #8b0000;
 }
 
 /* Menu buttons */
 #menu button, #game-over-screen button, #pause-screen button, #level-up-screen button {
   font-family: 'Press Start 2P', cursive;
-  font-size: 1rem; /* Smaller for pixel font */
-  background: #252525; /* Solid dark gray */
+  font-size: 1rem;
+  background: #252525;
   color: #d9c4a6;
   border: 3px solid #2a2a2a;
   padding: 15px 50px;
   margin: 20px 15px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  transition: background 0.2s steps(4), color 0.2s steps(4), border-color 0.2s steps(4), transform 0.2s steps(4); /* Choppy transition */
+  transition: background 0.2s steps(4), color 0.2s steps(4), border-color 0.2s steps(4), transform 0.2s steps(4);
   cursor: pointer;
   image-rendering: pixelated;
 }
@@ -127,7 +158,7 @@
 #menu button:hover, #game-over-screen button:hover, #pause-screen button:hover, #level-up-screen button:hover {
   background: #353535;
   color: #fff;
-  border-color: #8b0000; /* Red accent */
+  border-color: #8b0000;
   transform: translateY(-4px);
 }
 
@@ -170,6 +201,37 @@
   font-family: 'Press Start 2P', cursive;
   font-size: 0.7rem;
   color: #bbb;
+}
+
+/* Skills HUD for cooldown bars */
+#skills-hud {
+  position: absolute;
+  top: 350px;
+  left: 15px;
+  width: 250px;
+  z-index: 10;
+}
+
+.skill-cooldown {
+  margin: 12px 0;
+  background: #1f1f1f;
+  border: 3px solid #2a2a2a;
+  height: 25px;
+  image-rendering: pixelated;
+}
+
+.cooldown-bar {
+  background: #8b0000;
+  height: 100%;
+  transition: width 0.1s linear;
+}
+
+.cooldown-label {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8rem;
+  color: #d9c4a6;
+  text-shadow: 1px 1px 0 #8b0000;
+  margin-top: 6px;
 }
 
 /* Spell choice */
@@ -272,21 +334,27 @@ button.icon-button:hover {
 
 /* Ultimate button */
 #ultimate-btn {
-  background: #8b0000; /* Blood-red */
+  background: #8b0000;
   border: 3px solid #2a2a2a;
   transition: all 0.2s steps(4);
-  padding: 12px 25px;
+  padding: 15px 30px;
   color: #d9c4a6;
   font-family: 'Press Start 2P', cursive;
-  font-size: 0.9rem;
+  font-size: 1rem;
   text-transform: uppercase;
   image-rendering: pixelated;
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  z-index: 15;
+  box-shadow: 0 0 10px #8b0000;
 }
 
 #ultimate-btn:hover:not(:disabled) {
   background: #a11212;
   border-color: #d9c4a6;
   transform: scale(1.1);
+  box-shadow: 0 0 15px #a11212;
 }
 
 #ultimate-btn:disabled {
@@ -294,41 +362,46 @@ button.icon-button:hover {
   border: 3px solid #2a2a2a;
   color: #888;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* Mobile controls */
+/* Joystick controls */
 #mobile-controls {
   position: fixed;
   bottom: 30px;
   width: 100%;
   display: none;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 0 30px;
   z-index: 10;
 }
 
-.dpad-container, .action-btns {
-  display: flex;
-  flex-direction: column;
-}
-
-.dpad-btn {
+#joystick-container {
+  width: 120px;
+  height: 120px;
   background: #252525;
   border: 3px solid #2a2a2a;
-  border-radius: 0; /* Square for pixel art */
-  width: 80px;
-  height: 80px;
-  margin: 8px;
-  color: #d9c4a6;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 1rem;
-  transition: all 0.2s steps(4);
+  border-radius: 50%;
+  position: relative;
+  touch-action: none;
   image-rendering: pixelated;
 }
 
-.dpad-btn:active {
+#joystick-knob {
+  width: 50px;
+  height: 50px;
   background: #8b0000;
-  border-color: #d9c4a6;
+  border: 3px solid #d9c4a6;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.1s steps(4);
+}
+
+#joystick-container:active #joystick-knob {
+  background: #a11212;
 }
 
 /* HUD elements */
@@ -348,7 +421,7 @@ button.icon-button:hover {
   border-radius: 0;
   width: 250px;
   height: 25px;
-  margin: 8px 0;
+  margin: 15px 0;
   image-rendering: pixelated;
 }
 
@@ -358,9 +431,8 @@ button.icon-button:hover {
   border-radius: 0;
 }
 
-#timer, #level-display, #relics-display {
-  font-family: 'Press Start 2P', cursive;
-  margin: 8px 0;
+#score, #timer, #level-display, #relics-display {
+  margin: 15px 0;
   color: #d9c4a6;
   text-shadow: 1px 1px 0 #8b0000;
   font-size: 0.8rem;
@@ -374,43 +446,74 @@ button.icon-button:hover {
     max-height: 70vh;
   }
 
-  #menu, #game-over-screen, #pause-screen, #level-up-screen {
+  #menu, #game-over-screen, #pause-screen, #level-up-screen, #tutorial-overlay {
     width: 90%;
     padding: 30px;
+  }
+
+  #tutorial-overlay {
+    width: 80%;
+    padding: 20px;
   }
 
   #mobile-controls {
     display: flex;
   }
 
-  #menu h2, #game-over-screen h2, #pause-screen h2, #level-up-screen h2 {
+  #menu h2, #game-over-screen h2, #pause-screen h2, #level-up-screen h2, #tutorial-overlay h2 {
     font-size: 1.2rem;
   }
 
-  #menu button, #game-over-screen button, #pause-screen button, #level-up-screen button {
+  #menu button, #game-over-screen button, #pause-screen button, #level-up-screen button, #tutorial-overlay button {
     font-size: 0.8rem;
     padding: 12px 40px;
   }
 
-  .dpad-btn {
-    width: 60px;
-    height: 60px;
-    font-size: 0.8rem;
+  #joystick-container {
+    width: 100px;
+    height: 100px;
+  }
+
+  #joystick-knob {
+    width: 40px;
+    height: 40px;
   }
 
   #health-container, #xp-bar-container {
     width: 200px;
     height: 20px;
+    margin: 12px 0;
+  }
+
+  #skills-hud {
+    width: 200px;
+    top: 300px;
+  }
+
+  .skill-cooldown {
+    height: 20px;
+    margin: 10px 0;
+  }
+
+  .cooldown-label {
+    font-size: 0.7rem;
+  }
+
+  #ultimate-btn {
+    padding: 12px 25px;
+    font-size: 0.9rem;
+    bottom: 30px;
+    right: 30px;
   }
 }
 
 /* Accessibility focus states */
-button:focus, .dpad-btn:focus, .spell-choice:focus {
+button:focus, #joystick-container:focus, .spell-choice:focus {
   outline: 3px solid #d9c4a6;
   outline-offset: 2px;
 }
 </style>
-  <audio id="dungeon-ambiance" loop>
+<audio id="dungeon-ambiance" loop>
   <source src="assets/dungeon-ambiance.mp3" type="audio/mpeg">
 </audio>
 </head>
@@ -430,14 +533,15 @@ button:focus, .dpad-btn:focus, .spell-choice:focus {
         <div id="health-label">100%</div>
       </div>
       <div id="score" aria-label="Score">Score: 0</div>
+      <div id="xp-bar-container">
+        <div id="xp-bar"></div>
+        <div id="xp-label">0%</div>
+      </div>
+      <div id="level-display">Level: 1</div>
+      <div id="relics-display">Relics: None</div>
+      <div id="timer">00:00</div>
+      <div id="skills-hud" aria-label="Active Skills Cooldowns"></div>
     </div>
-    <div id="xp-bar-container">
-      <div id="xp-bar"></div>
-      <div id="xp-label">0%</div>
-    </div>
-    <div id="level-display">Level: 1</div>
-    <div id="relics-display">Relics: None</div>
-    <div id="timer">00:00</div>
     <div id="menu" role="dialog" aria-modal="true" aria-labelledby="menu-title">
       <h2 id="menu-title">Necromancer Survivors</h2>
       <p>Control a necromancer, survive waves of enemies! Auto attacks, upgrades, and ultimate ability.</p>
@@ -459,17 +563,19 @@ button:focus, .dpad-btn:focus, .spell-choice:focus {
       <h2 id="levelup-title">Level Up! Choose a Spell or Upgrade</h2>
       <div id="weapon-choices"></div>
     </div>
+    <div id="tutorial-overlay" role="dialog" aria-modal="true" aria-labelledby="tutorial-title" hidden>
+      <h2 id="tutorial-title">How to Play</h2>
+      <p id="tutorial-text">Press Space or tap Ultimate to summon an Undead Dragon!</p>
+      <button id="tutorial-next-btn">Next</button>
+    </div>
     <div id="mobile-controls" aria-label="Touch Controls" role="region">
-      <div id="dpad" aria-label="Movement Controls">
-        <button class="dpad-btn" data-dir="up" aria-label="Move Up" title="Move Up"><span class="material-icons">arrow_upward</span></button>
-        <button class="dpad-btn" data-dir="" aria-hidden="true" disabled aria-disabled="true"></button>
-        <button class="dpad-btn" data-dir="right" aria-label="Move Right" title="Move Right"><span class="material-icons">arrow_forward</span></button>
-        <button class="dpad-btn" data-dir="left" aria-label="Move Left" title="Move Left"><span class="material-icons">arrow_back</span></button>
-        <button class="dpad-btn" data-dir="down" aria-label="Move Down" title="Move Down"><span class="material-icons">arrow_downward</span></button>
-        <button class="dpad-btn" data-dir="" aria-hidden="true" disabled aria-disabled="true"></button>
+      <div id="joystick-container" aria-label="Movement Joystick" tabindex="0">
+        <div id="joystick-knob"></div>
       </div>
     </div>
-    <button id="ultimate-btn" disabled aria-label="Use Ultimate Ability" title="Summon Undead Dragon"><span class="material-icons">whatshot</span></button>
+    <button id="ultimate-btn" disabled aria-label="Use Ultimate Ability" title="Summon Undead Dragon">
+      <span class="material-icons">whatshot</span> Ultimate
+    </button>
   </div>
   <footer role="contentinfo">
     <div>© 2025 Necromancer Survivors - High Score: <span id="high-score">0</span></div>
@@ -522,7 +628,7 @@ button:focus, .dpad-btn:focus, .spell-choice:focus {
   const XP_PER_ENEMY = 15;
   const XP_CURVE = 1.3;
   const BOSS_INTERVAL = 18000;
-  const ULTIMATE_UNLOCK_TIME = 18000;
+  const ULTIMATE_UNLOCK_TIME = 180;
   const ambiance = document.getElementById('dungeon-ambiance');
 ambiance.play();
   let keysPressed = {};
@@ -619,6 +725,8 @@ chestSprite.src = 'chest.png'; // Replace with the actual path to your chest spr
   plagueMiasmaSprite.src = 'plague_miasma.png'; // Replace with your plague miasma sprite path
   const bansheeScreamSprite = new Image();
   bansheeScreamSprite.src = 'banshee_scream.png'; // Replace with your banshee scream sprite path
+  const skeletonDragonSprite = new Image();
+skeletonDragonSprite.src = 'skeletonDragon.png'; // Replace with the actual path to your sprite file
 // Add portal sprite definitions after existing sprite declarations (e.g., after skeletonDragonSprite around line 750)
 const skeletonPortalSprite = new Image();
 skeletonPortalSprite.src = 'skeleton_portal.png'; // Bone-white vortex with skull motifs
@@ -711,18 +819,18 @@ const WEAPON_DATA = {
       ultraBonus: { spearCount: 9, damageMultiplier: 3, ricochet: true },
       ultraVisual: { color: "#b0b0b0", sizeMultiplier: 1.8, particleCount: 35, glow: true }
     },
-    soul: {
-      name: "Soul Harvest",
-      description: "Drains life from nearby enemies, healing you.",
-      baseDamage: 3,
-      baseRadius: 80,
-      baseCooldown: 120,
-      baseHeal: 0.5,
-      levelScaling: { damage: 1.5, radius: 15, cooldown: -20, heal: 0.3 },
-      maxLevel: 5,
-      ultraBonus: { radiusMultiplier: 2.5, damageMultiplier: 4, healMultiplier: 3, weaken: true },
-      ultraVisual: { color: "#104e8b", sizeMultiplier: 1.5, particleCount: 40, glow: true }
-    },
+  soul: {
+    name: "Soul Harvest",
+    description: "Drains life from nearby enemies, healing you.",
+    baseDamage: 3,
+    baseRadius: 80,
+    baseCooldown: 120,
+    baseHeal: 0.8, // Increased healing from 0.5 to 0.8
+    levelScaling: { damage: 1.5, radius: 15, cooldown: -20, heal: 0.5 }, // Increased heal scaling
+    maxLevel: 5,
+    ultraBonus: { radiusMultiplier: 2.5, damageMultiplier: 4, healMultiplier: 3, weaken: true },
+    ultraVisual: { color: "#104e8b", sizeMultiplier: 1.5, particleCount: 40, glow: true }
+  },
     wraith: {
       name: "Wraith Swarm",
       description: "Unleashes a swarm of wraiths that chase enemies.",
@@ -747,18 +855,18 @@ const WEAPON_DATA = {
       ultraBonus: { explosionCount: 3, damageMultiplier: 3, radiusMultiplier: 2, burn: true },
       ultraVisual: { color: "#8b4500", sizeMultiplier: 2, particleCount: 35, glow: true }
     },
-    chains: {
-      name: "Cursed Chains",
-      description: "Binds enemies, slowing and damaging them.",
-      baseDamage: 2,
-      baseRadius: 100,
-      baseCooldown: 180,
-      slow: 0.001,
-      levelScaling: { damage: 1, radius: 20, cooldown: -25, slow: 0.1 },
-      maxLevel: 5,
-      ultraBonus: { radiusMultiplier: 2, damageMultiplier: 3, slow: 0.9, root: true },
-      ultraVisual: { color: "#1a2f2f", sizeMultiplier: 1.5, particleCount: 30, glow: true }
-    },
+ chains: {
+    name: "Cursed Chains",
+    description: "Binds enemies, slowing and damaging them.",
+    baseDamage: 2,
+    baseRadius: 100,
+    baseCooldown: 180,
+    slow: 0.4, // Increased from 0.001 to 0.4 to make slowing noticeable but not stopping
+    levelScaling: { damage: 1, radius: 20, cooldown: -25, slow: 0.05 },
+    maxLevel: 5,
+    ultraBonus: { radiusMultiplier: 2, damageMultiplier: 3, slow: 0.7, root: false }, // Removed root effect
+    ultraVisual: { color: "#1a2f2f", sizeMultiplier: 1.5, particleCount: 30, glow: true }
+  },
     nova: {
       name: "Death Nova",
       description: "Releases a radial burst of necrotic energy.",
@@ -807,19 +915,19 @@ const WEAPON_DATA = {
       ultraBonus: { summonCount: 3, damageMultiplier: 3, mirror: true },
       ultraVisual: { color: "#2f2f4b", sizeMultiplier: 1.3, particleCount: 25, glow: true }
     },
-    plague: {
-      name: "Plague Miasma",
-      description: "Releases a toxic cloud that damages and slows enemies over time.",
-      baseDamage: 2,
-      baseRadius: 70,
-      baseCooldown: 120,
-      duration: 180,
-      slow: 0.3,
-      levelScaling: { damage: 1, radius: 15, cooldown: -20, duration: 30, slow: 0.05 },
-      maxLevel: 5,
-      ultraBonus: { radiusMultiplier: 2, damageMultiplier: 3, durationMultiplier: 2, infect: true },
-      ultraVisual: { color: "#3f6b2f", sizeMultiplier: 1.8, particleCount: 35, glow: true }
-    },
+  plague: {
+    name: "Plague Miasma",
+    description: "Releases a toxic cloud that damages and slows enemies over time.",
+    baseDamage: 2,
+    baseRadius: 70,
+    baseCooldown: 120,
+    duration: 180,
+    slow: 0.4, // Increased from 0.3 to 0.4 for balanced slowing
+    levelScaling: { damage: 1, radius: 15, cooldown: -20, duration: 30, slow: 0.05 },
+    maxLevel: 5,
+    ultraBonus: { radiusMultiplier: 2, damageMultiplier: 3, durationMultiplier: 2, infect: true },
+    ultraVisual: { color: "#3f6b2f", sizeMultiplier: 1.8, particleCount: 35, glow: true }
+  },
     banshee: {
       name: "Banshee Scream",
       description: "Unleashes a piercing wail that damages enemies in a cone and causes fear.",
@@ -838,7 +946,7 @@ const WEAPON_DATA = {
     zombie: { size: 32, speed: 0.8, health: 15, attackCooldown: 90, color: "#556b2f", emoji: "🧟" },
     ghost: { size: 20, speed: 2.5, health: 3, attackCooldown: 45, color: "#add8e6", emoji: "👻" },
     golem: { size: 40, speed: 0.5, health: 25, attackCooldown: 120, color: "#a9a9a9", emoji: "🦴" },
-    dragon: { size: 80, speed: 0.5, health: 100, attackCooldown: 30, color: "#ff4500", emoji: "🐉" },
+    dragon: { size: 30, speed: 0.5, health: 100, attackCooldown: 30, color: "#ff4500", emoji: "🐉" },
 shadow: { size: 24, speed: 2.5, health: 8, attackCooldown: 60, color: "#2f2f4b", emoji: "🌑", teleportCooldown: 180 }, // 2 seconds at 60 FPS
   };
 
@@ -873,16 +981,21 @@ shadow: { size: 24, speed: 2.5, health: 8, attackCooldown: 60, color: "#2f2f4b",
     alpha: 1
   });
 }
-function addParticles(x, y, count, color = '#4a5c13', size = 3, duration = 120) {
+function addParticles(x, y, count, color = '#4a5c13', size = 3, duration = 60) {
+  count = Math.min(count, 10);
+  if (particles.length + count > 100) {
+    particles.splice(0, particles.length + count - 100); // Remove oldest particles
+  }
   for (let i = 0; i < count; i++) {
     particles.push({
-      x, y,
-      vx: (Math.random() - 0.5) * 2,
-      vy: (Math.random() - 0.5) * 2,
+      x,
+      y,
+      dx: (Math.random() - 0.5) * 2,
+      dy: (Math.random() - 0.5) * 2,
       size: size * Math.random(),
       color,
-      alpha: 0.5,
-      life: duration * Math.random()
+      life: Math.min(duration, 60),
+      maxLife: Math.min(duration, 60)
     });
   }
 }
@@ -1081,44 +1194,56 @@ function openWeaponChoiceMenu() {
     gameState = "playing";
     canvas.focus();
   }
-function spawnEnemy(type = null, x = null, y = null) {
-  let enemyType = type || (
-    wave > 7 && Math.random() < 0.5 ? 'ranged' : // Increased chance for ranged
-    wave > 3 && Math.random() < 0.4 ? 'tank' :    // Same chance for tank
-    wave > 10 && Math.random() < 0.1 ? 'fast' :   // Fast enemies only after wave 10, reduced to 10%
-    wave > 2 && Math.random() < 0.6 ? 'swarm' :   // Reduced swarm chance slightly
-    'standard'                                    // Default to standard
-  );
-  const typeData = ENEMY_TYPES[enemyType];
+function spawnEnemy(type, x, y) {
+  const data = ENEMY_TYPES[type];
   let spawnX, spawnY;
-  if (x !== null && y !== null) {
-    spawnX = x;
-    spawnY = y;
+  
+  // If x and y are provided (e.g., for minions), ensure they're within bounds
+  if (x !== undefined && y !== undefined) {
+    spawnX = Math.max(data.size / 2, Math.min(CANVAS_WIDTH - data.size / 2, x));
+    spawnY = Math.max(data.size / 2, Math.min(CANVAS_HEIGHT - data.size / 2, y));
   } else {
-    const side = Math.floor(Math.random() * 4);
+    // Random spawn at canvas edges, adjusted for enemy size
+    const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
     switch (side) {
-      case 0: spawnX = Math.random() * CANVAS_WIDTH; spawnY = -typeData.size; break;
-      case 1: spawnX = CANVAS_WIDTH + typeData.size; spawnY = Math.random() * CANVAS_HEIGHT; break;
-      case 2: spawnX = Math.random() * CANVAS_WIDTH; spawnY = CANVAS_HEIGHT + typeData.size; break;
-      case 3: spawnX = -typeData.size; spawnY = Math.random() * CANVAS_HEIGHT; break;
+      case 0: // Top
+        spawnX = Math.random() * (CANVAS_WIDTH - data.size) + data.size / 2;
+        spawnY = data.size / 2;
+        break;
+      case 1: // Right
+        spawnX = CANVAS_WIDTH - data.size / 2;
+        spawnY = Math.random() * (CANVAS_HEIGHT - data.size) + data.size / 2;
+        break;
+      case 2: // Bottom
+        spawnX = Math.random() * (CANVAS_WIDTH - data.size) + data.size / 2;
+        spawnY = CANVAS_HEIGHT - data.size / 2;
+        break;
+      case 3: // Left
+        spawnX = data.size / 2;
+        spawnY = Math.random() * (CANVAS_HEIGHT - data.size) + data.size / 2;
+        break;
     }
   }
-  const speedMod = 1 + wave * 0.05;
+
   enemies.push({
     x: spawnX,
     y: spawnY,
-    size: typeData.size,
-    speed: typeData.speed * speedMod,
-    health: typeData.health + Math.floor(wave / 2),
-    maxHealth: typeData.health + Math.floor(wave / 2),
-    damage: typeData.damage,
+    size: data.size,
+    speed: data.speed,
+    baseSpeed: data.speed,
+    health: data.health,
+    maxHealth: data.health,
+    damage: data.damage,
+    attackCooldown: data.attackCooldown,
+    xp: data.xp,
     alive: true,
-    type: enemyType,
-    color: typeData.color,
-    xp: typeData.xp,
-    attackCooldown: typeData.attackCooldown || 0,
+    type: type,
+    isBoss: type === 'boss',
+    stunned: 0,
+    fear: 0,
+    silenced: 0
   });
-  if (Math.random() < 0.01) spawnRelic(spawnX, spawnY);
+  console.log(`Spawned ${type} at (${spawnX}, ${spawnY})`);
 }
 function spawnHorde() {
   const hordeSize = Math.floor(HORDE_SIZE_MIN + (HORDE_SIZE_MAX - HORDE_SIZE_MIN) * (wave / 10) + gameTimer / 3600);
@@ -1219,54 +1344,54 @@ function spawnHorde() {
     player.damageDealt[weaponId] += damage;
   }
 function autoAttack() {
-    let damageBoost = player.relics.includes('damage') ? RELIC_TYPES.damage.multiplier : 1;
-    let cooldownReduction = player.relics.includes('cooldown') ? RELIC_TYPES.cooldown.multiplier : 1;
-    for (let wId in player.weapons) {
-      let weapon = player.weapons[wId];
-      if (weapon.cooldown > 0) {
-        weapon.cooldown--;
-        continue;
-      }
-      let data = WEAPON_DATA[wId];
-      let lvl = weapon.level;
-      let damage = (data.baseDamage + data.levelScaling.damage * (lvl - 1)) * damageBoost;
-      let cd = Math.max(30, (data.baseCooldown + data.levelScaling.cooldown * (lvl - 1)) * cooldownReduction);
-      let summonCount = data.summonCount ? data.summonCount + data.levelScaling.summonCount * (lvl - 1) : 0;
-      let speed = data.baseSpeed ? data.baseSpeed + data.levelScaling.speed * (lvl - 1) : 0;
-      let homing = data.baseHoming ? data.baseHoming + data.levelScaling.homing * (lvl - 1) : 0;
-      let radius = data.baseRadius ? data.baseRadius + data.levelScaling.radius * (lvl - 1) : 0;
-      let heal = data.baseHeal ? data.baseHeal + data.levelScaling.heal * (lvl - 1) : 0;
-      let duration = data.baseDuration ? data.baseDuration + data.levelScaling.duration * (lvl - 1) : 0;
-      let spearCount = data.spearCount ? data.spearCount + data.levelScaling.spearCount * (lvl - 1) : 0;
-      let orbCount = data.orbCount ? data.orbCount + data.levelScaling.orbCount * (lvl - 1) : 0;
-      let wraithCount = data.wraithCount ? data.wraithCount + data.levelScaling.wraithCount * (lvl - 1) : 0;
-      let explosionCount = data.explosionCount ? data.explosionCount + data.levelScaling.explosionCount * (lvl - 1) : 0;
-      let slow = data.slow ? data.slow + data.levelScaling.slow * (lvl - 1) : 0;
-      let scytheCount = data.scytheCount ? data.scytheCount + data.levelScaling.scytheCount * (lvl - 1) : 0;
-      let curseDuration = data.duration ? data.duration + data.levelScaling.duration * (lvl - 1) : 0;
-      let range = data.baseRange ? data.baseRange + data.levelScaling.range * (lvl - 1) : 0;
-      let fearDuration = data.fearDuration ? data.fearDuration + data.levelScaling.fearDuration * (lvl - 1) : 0;
-      if (weapon.ultra) {
-        summonCount = data.ultraBonus.summonCount || summonCount;
-        damage *= data.ultraBonus.damageMultiplier || 1;
-        radius *= data.ultraBonus.radiusMultiplier || 1;
-        heal *= data.ultraBonus.healMultiplier || 1;
-        speed *= data.ultraBonus.speedMultiplier || 1;
-        homing = data.ultraBonus.homingStrength || homing;
-        spearCount = data.ultraBonus.spearCount || spearCount;
-        orbCount = data.ultraBonus.orbCount || orbCount;
-        wraithCount = data.ultraBonus.wraithCount || wraithCount;
-        explosionCount = data.ultraBonus.explosionCount || explosionCount;
-        slow = data.ultraBonus.slow || slow;
-        scytheCount = data.ultraBonus.scytheCount || scytheCount;
-        curseDuration *= data.ultraBonus.durationMultiplier || 1;
-        range *= data.ultraBonus.rangeMultiplier || 1;
-        fearDuration *= data.ultraBonus.fearDurationMultiplier || 1;
-      }
-      let synergy = applySynergies(wId, damage, orbCount);
-      damage = synergy.damage;
-      orbCount = synergy.orbCount;
-      let visual = weapon.ultra ? data.ultraVisual : { color: data.color, sizeMultiplier: 1, particleCount: 10, glow: false };
+  let damageBoost = player.relics.includes('damage') ? RELIC_TYPES.damage.multiplier : 1;
+  let cooldownReduction = player.relics.includes('cooldown') ? RELIC_TYPES.cooldown.multiplier : 1;
+  for (let wId in player.weapons) {
+    let weapon = player.weapons[wId];
+    if (weapon.cooldown > 0) {
+      weapon.cooldown--;
+      continue;
+    }
+    let data = WEAPON_DATA[wId];
+    let lvl = weapon.level;
+    let damage = (data.baseDamage + data.levelScaling.damage * (lvl - 1)) * damageBoost;
+    let cd = Math.max(30, (data.baseCooldown + data.levelScaling.cooldown * (lvl - 1)) * cooldownReduction);
+    let summonCount = data.summonCount ? data.summonCount + data.levelScaling.summonCount * (lvl - 1) : 0;
+    let speed = data.baseSpeed ? data.baseSpeed + data.levelScaling.speed * (lvl - 1) : 0;
+    let homing = data.baseHoming ? data.baseHoming + data.levelScaling.homing * (lvl - 1) : 0;
+    let radius = data.baseRadius ? data.baseRadius + data.levelScaling.radius * (lvl - 1) : 0;
+    let heal = data.baseHeal ? data.baseHeal + data.levelScaling.heal * (lvl - 1) : 0;
+    let duration = data.baseDuration ? data.baseDuration + data.levelScaling.duration * (lvl - 1) : 0;
+    let spearCount = data.spearCount ? data.spearCount + data.levelScaling.spearCount * (lvl - 1) : 0;
+    let orbCount = data.orbCount ? data.orbCount + data.levelScaling.orbCount * (lvl - 1) : 0;
+    let wraithCount = data.wraithCount ? data.wraithCount + data.levelScaling.wraithCount * (lvl - 1) : 0;
+    let explosionCount = data.explosionCount ? data.explosionCount + data.levelScaling.explosionCount * (lvl - 1) : 0;
+    let slow = data.slow ? data.slow + data.levelScaling.slow * (lvl - 1) : 0;
+    let scytheCount = data.scytheCount ? data.scytheCount + data.levelScaling.scytheCount * (lvl - 1) : 0;
+    let curseDuration = data.duration ? data.duration + data.levelScaling.duration * (lvl - 1) : 0;
+    let range = data.baseRange ? data.baseRange + data.levelScaling.range * (lvl - 1) : 0;
+    let fearDuration = data.fearDuration ? data.fearDuration + data.levelScaling.fearDuration * (lvl - 1) : 0;
+    if (weapon.ultra) {
+      summonCount = data.ultraBonus.summonCount || summonCount;
+      damage *= data.ultraBonus.damageMultiplier || 1;
+      radius *= data.ultraBonus.radiusMultiplier || 1;
+      heal *= data.ultraBonus.healMultiplier || 1;
+      speed *= data.ultraBonus.speedMultiplier || 1;
+      homing = data.ultraBonus.homingStrength || homing;
+      spearCount = data.ultraBonus.spearCount || spearCount;
+      orbCount = data.ultraBonus.orbCount || orbCount;
+      wraithCount = data.ultraBonus.wraithCount || wraithCount;
+      explosionCount = data.ultraBonus.explosionCount || explosionCount;
+      slow = data.ultraBonus.slow || slow;
+      scytheCount = data.ultraBonus.scytheCount || scytheCount;
+      curseDuration *= data.ultraBonus.durationMultiplier || 1;
+      range *= data.ultraBonus.rangeMultiplier || 1;
+      fearDuration *= data.ultraBonus.fearDurationMultiplier || 1;
+    }
+    let synergy = applySynergies(wId, damage, orbCount);
+    damage = synergy.damage;
+    orbCount = synergy.orbCount;
+    let visual = weapon.ultra ? data.ultraVisual : { color: data.color, sizeMultiplier: 1, particleCount: 10, glow: false };
 if (['skeleton', 'zombie', 'ghost', 'golem', 'shadow'].includes(wId)) {
   let count = weapon.ultra ? data.ultraBonus.summonCount : Math.floor(summonCount);
   let summonType = data.summonType;
@@ -1473,26 +1598,29 @@ if (['skeleton', 'zombie', 'ghost', 'golem', 'shadow'].includes(wId)) {
     });
   }
   weapon.cooldown = cd;
-} else if (wId === 'chains') {
-        enemies.concat(bosses).forEach(e => {
-          if (!e.alive || distance(player.x, player.y, e.x, e.y) > radius) return;
-          let dmg = damage / 60;
-          e.health -= dmg;
-          e.speed *= slow;
-          if (weapon.ultra && data.ultraBonus.root) e.speed = 0;
-          trackDamage(wId, dmg);
-          addDamageNumber(e.x, e.y, dmg, '#2f4f4f');
-          addParticles(e.x, e.y, visual.particleCount / 2, visual.color || "#2f4f4f", 1, 15);
-          if (e.health <= 2) {
-            e.alive = false;
-            score += e.isBoss ? 10 * wave : 1;
-            gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
-            updateScoreUI();
-          }
-        });
-        addParticles(player.x, player.y, visual.particleCount, visual.color || "#2f4f4f", 2, 20);
-        playAttackSound();
-      } else if (wId === 'nova') {
+    } else if (wId === 'chains') {
+      enemies.concat(bosses).forEach(e => {
+        if (!e.alive || distance(player.x, player.y, e.x, e.y) > radius) {
+          // Restore speed if out of range
+          e.speed = e.baseSpeed;
+          return;
+        }
+        let dmg = damage / 60;
+        e.health -= dmg;
+        e.speed = e.baseSpeed * (1 - slow); // Apply slowing without stopping
+        trackDamage(wId, dmg);
+        addDamageNumber(e.x, e.y, dmg, visual.color || '#1a2f2f');
+        addParticles(e.x, e.y, visual.particleCount / 2, visual.color || '#1a2f2f', 1, 15);
+        if (e.health <= 2) {
+          e.alive = false;
+          score += e.isBoss ? 10 * wave : 1;
+          gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+          updateScoreUI();
+        }
+      });
+      addParticles(player.x, player.y, visual.particleCount, visual.color || '#1a2f2f', 2, 20);
+      playAttackSound();
+    }  else if (wId === 'nova') {
         projectiles.push({
           x: player.x,
           y: player.y,
@@ -1540,22 +1668,23 @@ if (['skeleton', 'zombie', 'ghost', 'golem', 'shadow'].includes(wId)) {
         });
         addParticles(player.x, player.y, visual.particleCount, visual.color || "#800080", 2, 20);
         playAttackSound();
-      } else if (wId === 'plague') {
-        projectiles.push({
-          x: player.x,
-          y: player.y,
-          size: radius * visual.sizeMultiplier,
-          damage: damage / 60,
-          duration: duration,
-          slow: slow,
-          type: 'plague',
-          weaponId: wId,
-          ultra: weapon.ultra,
-          ultraEffects: weapon.ultra ? data.ultraBonus : {}
-        });
-        addParticles(player.x, player.y, visual.particleCount, visual.color || "#3f6b2f", 4, 40);
-        playAttackSound();
-      } else if (wId === 'banshee') {
+      }   else if (wId === 'plague') {
+      projectiles.push({
+        x: player.x,
+        y: player.y,
+        size: radius * visual.sizeMultiplier,
+        damage: damage / duration,
+        life: duration,
+        type: 'plague',
+        weaponId: wId,
+        ultra: weapon.ultra,
+        ultraEffects: weapon.ultra ? data.ultraBonus : {},
+        slow: slow,
+        affectedEnemies: new Set() // Track enemies affected by this plague instance
+      });
+      addParticles(player.x, player.y, visual.particleCount, visual.color || '#3f6b2f', 4, duration);
+      playAttackSound();
+    }else if (wId === 'banshee') {
         let angle = Math.random() * Math.PI * 2;
         projectiles.push({
           x: player.x,
@@ -1578,41 +1707,240 @@ if (['skeleton', 'zombie', 'ghost', 'golem', 'shadow'].includes(wId)) {
       weapon.cooldown = cd;
     }
   }
-function useUltimate() {
-  if (!ultimateReady || ultimateCooldown > 0) return;
-  // Spawn the dragon
-  let dragonAngle = Math.random() * Math.PI * 2; // Random angle for dragon
-  let dragonDist = 50;
-  summons.push({
-    x: player.x + Math.cos(dragonAngle) * dragonDist,
-    y: player.y + Math.sin(dragonAngle) * dragonDist,
-    spawnX: player.x + Math.cos(dragonAngle) * dragonDist,
-    spawnY: player.y + Math.sin(dragonAngle) * dragonDist,
-    spawnAngle: dragonAngle, // Store initial angle for portal
-    size: SUMMON_TYPES.dragon.size,
-    damage: 10,
-    life: 600,
-    speed: SUMMON_TYPES.dragon.speed,
-    health: SUMMON_TYPES.dragon.health,
-    maxHealth: SUMMON_TYPES.dragon.health,
-    attackCooldown: SUMMON_TYPES.dragon.attackCooldown,
-    type: 'dragon',
-    color: SUMMON_TYPES.dragon.color,
-    emoji: SUMMON_TYPES.dragon.emoji,
-    portalLife: 60
+
+function updateProjectiles() {
+  projectiles = projectiles.filter(p => p.life > 0 || !p.life);
+  projectiles.forEach(p => {
+    if (p.life) p.life--;
+    if (p.type === 'plague') {
+      let enemiesInRange = new Set();
+      enemies.concat(bosses).forEach(e => {
+        if (!e.alive || distance(p.x, p.y, e.x, e.y) > p.size) {
+          // Restore speed if enemy leaves plague area or is not affected
+          if (p.affectedEnemies.has(e)) {
+            e.speed = e.baseSpeed;
+            p.affectedEnemies.delete(e);
+          }
+          return;
+        }
+        enemiesInRange.add(e);
+        if (!p.affectedEnemies.has(e)) {
+          p.affectedEnemies.add(e);
+        }
+        let dmg = p.damage;
+        e.health -= dmg;
+        e.speed = e.baseSpeed * (1 - p.slow); // Apply slowing
+        trackDamage(p.weaponId, dmg);
+        addDamageNumber(e.x, e.y, dmg, p.ultra ? p.ultraEffects.color || '#3f6b2f' : '#3f6b2f');
+        addParticles(e.x, e.y, 5, p.ultra ? p.ultraEffects.color || '#3f6b2f' : '#3f6b2f', 1, 15);
+        if (p.ultra && p.ultraEffects.infect && Math.random() < 0.01) {
+          let nearbyEnemies = enemies.concat(bosses).filter(n => n !== e && n.alive && distance(e.x, e.y, n.x, n.y) < p.size * 1.5);
+          nearbyEnemies.forEach(n => {
+            n.health -= dmg * 0.5;
+            n.speed = n.baseSpeed * (1 - p.slow);
+            trackDamage(p.weaponId, dmg * 0.5);
+            addDamageNumber(n.x, n.y, dmg * 0.5, p.ultra ? p.ultraEffects.color || '#3f6b2f' : '#3f6b2f');
+          });
+        }
+        if (e.health <= 2) {
+          e.alive = false;
+          score += e.isBoss ? 10 * wave : 1;
+          gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+          updateScoreUI();
+          if (e.isBoss) spawnChest(e.x, e.y);
+          p.affectedEnemies.delete(e);
+        }
+      });
+      // Restore speed for enemies no longer in range
+      p.affectedEnemies.forEach(e => {
+        if (!enemiesInRange.has(e)) {
+          e.speed = e.baseSpeed;
+          p.affectedEnemies.delete(e);
+        }
+      });
+    } else if (p.homing && p.target && p.target.alive) {
+      let dir = normalizeVector(p.target.x - p.x, p.target.y - p.y);
+      p.dx += dir.x * p.homingStrength;
+      p.dy += dir.y * p.homingStrength;
+      let speed = Math.hypot(p.dx, p.dy);
+      if (speed > p.speed) {
+        p.dx = (p.dx / speed) * p.speed;
+        p.dy = (p.dy / speed) * p.speed;
+      }
+    }
+    p.x += p.dx || 0;
+    p.y += p.dy || 0;
+    enemies.concat(bosses).forEach(e => {
+      if (!e.alive || (p.hits && p.hits.includes(e))) return;
+      if (distance(p.x, p.y, e.x, e.y) < p.size + e.size) {
+        let dmg = p.damage;
+        e.health -= dmg;
+        trackDamage(p.weaponId, dmg);
+        addDamageNumber(e.x, e.y, dmg, p.ultra ? p.ultraEffects.color || '#ff0000' : '#ff0000');
+        addParticles(e.x, e.y, 10, p.ultra ? p.ultraEffects.color || '#ff0000' : '#ff0000', 2, 20);
+        playEnemyHitSound();
+        if (p.ultra && p.ultraEffects.explode) {
+          projectiles.push({
+            x: e.x,
+            y: e.y,
+            size: p.size * 1.5,
+            damage: dmg * 0.5,
+            life: 10,
+            type: 'explosion',
+            weaponId: p.weaponId,
+            ultra: p.ultra,
+            ultraEffects: p.ultraEffects
+          });
+        }
+        if (p.ultra && p.ultraEffects.ricochet) {
+          let newTarget = enemies.concat(bosses).filter(n => n !== e && n.alive && distance(p.x, p.y, n.x, n.y) < 100).sort((a, b) => distance(p.x, p.y, a.x, a.y) - distance(p.x, p.y, b.x, b.y))[0];
+          if (newTarget) {
+            p.target = newTarget;
+            p.hits = p.hits || [];
+            p.hits.push(e);
+            return;
+          }
+        }
+        if (p.ultra && p.ultraEffects.chain) {
+          let nearby = enemies.concat(bosses).filter(n => n !== e && n.alive && distance(e.x, e.y, n.x, n.y) < 100).sort((a, b) => distance(e.x, e.y, a.x, a.y) - distance(e.x, e.y, b.x, b.y))[0];
+          if (nearby) {
+            projectiles.push({
+              x: e.x,
+              y: e.y,
+              size: p.size,
+              speed: p.speed,
+              dx: (nearby.x - e.x) / distance(e.x, e.y, nearby.x, nearby.y) * p.speed,
+              dy: (nearby.y - e.y) / distance(e.x, e.y, nearby.x, nearby.y) * p.speed,
+              damage: dmg * 0.75,
+              homing: true,
+              target: nearby,
+              homingStrength: p.homingStrength,
+              type: p.type,
+              weaponId: p.weaponId,
+              ultra: p.ultra,
+              ultraEffects: p.ultraEffects
+            });
+          }
+        }
+        if (p.ultra && p.ultraEffects.stun && Math.random() < 0.3) e.stunned = 30;
+        if (p.ultra && p.ultraEffects.knockback) {
+          let dir = normalizeVector(e.x - p.x, e.y - p.y);
+          e.x += dir.x * 10;
+          e.y += dir.y * 10;
+        }
+        if (p.ultra && p.ultraEffects.burn) {
+          hazards.push({
+            x: e.x,
+            y: e.y,
+            size: 30,
+            damage: dmg / 3,
+            duration: 180,
+            type: 'burning',
+            color: '#ff8c00'
+          });
+        }
+        if (!p.piercing) projectiles.splice(projectiles.indexOf(p), 1);
+        else p.hits = p.hits || [];
+        p.hits.push(e);
+        if (e.health <= 2) {
+          e.alive = false;
+          score += e.isBoss ? 10 * wave : 1;
+          gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+          updateScoreUI();
+          if (e.isBoss) spawnChest(e.x, e.y);
+          if (p.type === 'shadow' && p.ultra && p.ultraEffects.mirror) {
+            summons.push({
+              x: e.x,
+              y: e.y,
+              size: SUMMON_TYPES.shadow.size,
+              damage: p.damage,
+              life: 300,
+              speed: SUMMON_TYPES.shadow.speed,
+              health: SUMMON_TYPES.shadow.health,
+              maxHealth: SUMMON_TYPES.shadow.health,
+              attackCooldown: SUMMON_TYPES.shadow.attackCooldown,
+              type: 'shadow',
+              color: SUMMON_TYPES.shadow.color,
+              emoji: SUMMON_TYPES.shadow.emoji,
+              ultra: true,
+              ultraEffects: p.ultraEffects,
+              teleportCooldown: SUMMON_TYPES.shadow.teleportCooldown,
+              mirror: true
+            });
+          }
+        }
+      }
+    });
   });
+}
+function screenShake(duration = 20, intensity = 5) {
+  let shakeFrames = duration;
+  const originalX = canvas.style.left || '0px';
+  const originalY = canvas.style.top || '0px';
+  function shake() {
+    if (shakeFrames <= 0) {
+      canvas.style.left = originalX;
+      canvas.style.top = originalY;
+      return;
+    }
+    canvas.style.left = `${parseFloat(originalX) + (Math.random() - 0.5) * intensity}px`;
+    canvas.style.top = `${parseFloat(originalY) + (Math.random() - 0.5) * intensity}px`;
+    shakeFrames--;
+    requestAnimationFrame(shake);
+  }
+  shake();
+}
+
+let summonQueue = [];
+function useUltimate() {
+  if (!ultimateReady || gameState !== "playing" || summons.length >= 15) {
+    console.warn(`Ultimate aborted: ${summons.length} summons already active`);
+    return;
+  }
+  // Play sound and reset ultimate
+  playUltimateSound();
+  ultimateReady = false;
+  ultimateCooldown = 7200;
+  ultimateBtn.disabled = true;
+  screenShake(20, 5);
+
   // Common variables
   const damageBoost = player.relics.includes('damage') ? RELIC_TYPES.damage.multiplier : 1;
   const summonSpeedMultiplier = player.relics.includes('speed') ? RELIC_TYPES.speed.multiplier : 1;
-  const durationMultiplier = 1.5; // Extend duration by 50%
-  // Spawn 10 skeletons
+
+  // Spawn dragon summon with optimized parameters
+  const dragonType = SUMMON_TYPES.dragon;
+  const dragonVisual = { color: "#ff4500", sizeMultiplier: 1.5, particleCount: 10, glow: true };
+  summons.push({
+    x: player.x,
+    y: player.y,
+    spawnX: player.x,
+    spawnY: player.y,
+    spawnAngle: 0,
+    size: dragonType.size * dragonVisual.sizeMultiplier,
+    damage: 20 * damageBoost,
+    life: 600, // 10 seconds
+    speed: dragonType.speed * summonSpeedMultiplier,
+    health: dragonType.health,
+    maxHealth: dragonType.health,
+    attackCooldown: dragonType.attackCooldown,
+    type: "dragon",
+    color: dragonVisual.color,
+    emoji: dragonType.emoji,
+    ultra: true,
+    ultraEffects: { damageMultiplier: 2, cleave: true },
+    portalLife: 20 // Reduced to 1/3 second
+  });
+  addParticles(player.x, player.y, 10, dragonVisual.color, 3, 20);
+
+  // Spawn 5 skeletons (reduced from 10)
   const skeletonData = WEAPON_DATA.skeleton;
   const skeletonType = SUMMON_TYPES.skeleton;
   const skeletonDamage = (skeletonData.baseDamage + skeletonData.levelScaling.damage * ((player.weapons.skeleton?.level || 1) - 1)) * damageBoost;
-  const skeletonDuration = (skeletonData.baseDuration + skeletonData.levelScaling.duration * ((player.weapons.skeleton?.level || 1) - 1)) * 4;
+  const skeletonDuration = (skeletonData.baseDuration + skeletonData.levelScaling.duration * ((player.weapons.skeleton?.level || 1) - 1)) * 2; // Reduced multiplier
   const skeletonSpeed = skeletonType.speed * summonSpeedMultiplier;
-  for (let i = 0; i < 10; i++) {
-    let angle = (i / 10) * Math.PI * 2;
+  for (let i = 0; i < 5; i++) {
+    let angle = (i / 5) * Math.PI * 2;
     let dist = 60;
     let spawnX = player.x + Math.cos(angle) * dist;
     let spawnY = player.y + Math.sin(angle) * dist;
@@ -1621,7 +1949,7 @@ function useUltimate() {
       y: spawnY,
       spawnX: spawnX,
       spawnY: spawnY,
-      spawnAngle: angle, // Store initial angle for portal
+      spawnAngle: angle,
       size: skeletonType.size,
       damage: skeletonDamage,
       life: skeletonDuration,
@@ -1634,18 +1962,19 @@ function useUltimate() {
       emoji: skeletonType.emoji,
       ultra: player.weapons.skeleton?.ultra || false,
       ultraEffects: player.weapons.skeleton?.ultra ? skeletonData.ultraBonus : {},
-      portalLife: 60
+      portalLife: 20 // Reduced to 1/3 second
     });
-    addParticles(spawnX, spawnY, skeletonData.ultraVisual?.particleCount || 10, skeletonType.color, 3, 30);
+    addParticles(spawnX, spawnY, 5, skeletonType.color, 2, 20); // Reduced particles
   }
-  // Spawn 4 skeleton golems
+
+  // Spawn 2 golems (reduced from 4)
   const golemData = WEAPON_DATA.golem;
   const golemType = SUMMON_TYPES.golem;
   const golemDamage = (golemData.baseDamage + golemData.levelScaling.damage * ((player.weapons.golem?.level || 1) - 1)) * damageBoost;
-  const golemDuration = (golemData.baseDuration + golemData.levelScaling.duration * ((player.weapons.golem?.level || 1) - 1)) * 4;
+  const golemDuration = (golemData.baseDuration + golemData.levelScaling.duration * ((player.weapons.golem?.level || 1) - 1)) * 2; // Reduced multiplier
   const golemSpeed = golemType.speed * summonSpeedMultiplier;
-  for (let i = 0; i < 4; i++) {
-    let angle = (i / 4) * Math.PI * 2;
+  for (let i = 0; i < 2; i++) {
+    let angle = (i / 2) * Math.PI * 2;
     let dist = 80;
     let spawnX = player.x + Math.cos(angle) * dist;
     let spawnY = player.y + Math.sin(angle) * dist;
@@ -1654,7 +1983,7 @@ function useUltimate() {
       y: spawnY,
       spawnX: spawnX,
       spawnY: spawnY,
-      spawnAngle: angle, // Store initial angle for portal
+      spawnAngle: angle,
       size: golemType.size,
       damage: golemDamage,
       life: golemDuration,
@@ -1667,15 +1996,10 @@ function useUltimate() {
       emoji: golemType.emoji,
       ultra: player.weapons.golem?.ultra || false,
       ultraEffects: player.weapons.golem?.ultra ? golemData.ultraBonus : {},
-      portalLife: 60
+      portalLife: 20 // Reduced to 1/3 second
     });
-    addParticles(spawnX, spawnY, golemData.ultraVisual?.particleCount || 15, golemType.color, 4, 40);
+    addParticles(spawnX, spawnY, 5, golemType.color, 2, 20); // Reduced particles
   }
-  ultimateReady = false;
-  ultimateCooldown = 1800;
-  ultimateBtn.disabled = true;
-  playUltimateSound();
-  addParticles(player.x, player.y, 30, "#ff4500", 5, 60);
 }
 function upgradeRandomSkill() {
   let weaponIds = Object.keys(player.weapons).filter(wid => !player.weapons[wid].ultra);
@@ -1704,21 +2028,30 @@ function upgradeRandomSkill() {
     // playChestPickupSound(); // Optionally remove sound
   }
 }
-  function update() {
-    if (gameState !== "playing") {
-      if (gameState === "paused") updateSkillsList();
-      return;
-    }
-    frameCount++;
-    gameTimer++;
-    spawnTimer++;
-    bossTimer++;
-    updateTimerUI();
-    if (frameCount >= ULTIMATE_UNLOCK_TIME && !ultimateReady) {
-      ultimateReady = true;
-      ultimateBtn.disabled = false;
-    }
-    if (ultimateCooldown > 0) ultimateCooldown--;
+function update() {
+  if (gameState !== "playing") {
+    if (gameState === "paused") updateSkillsList();
+    return;
+  }
+  frameCount++;
+  gameTimer++;
+  spawnTimer++;
+  bossTimer++;
+  updateTimerUI();
+  if (frameCount >= ULTIMATE_UNLOCK_TIME && !ultimateReady) {
+    ultimateReady = true;
+    ultimateBtn.disabled = false;
+  }
+  if (summonQueue.length > 0) {
+    summonQueue = summonQueue.filter(q => q.frame <= frameCount);
+    summonQueue.forEach(q => {
+      // Spawn logic from useUltimate for q.type
+      console.log(`Spawning ${q.type} at frame ${frameCount}`);
+      // Add spawn logic here (copy from useUltimate)
+    });
+    summonQueue = summonQueue.filter(q => q.frame > frameCount);
+  }
+  if (ultimateCooldown > 0) ultimateCooldown--;
     let moveX = 0, moveY = 0;
     if (keysPressed['w'] || keysPressed['arrowup']) moveY -= 1;
     if (keysPressed['s'] || keysPressed['arrowdown']) moveY += 1;
@@ -1788,6 +2121,7 @@ for (let wId in player.weapons) {
     if (bossTimer >= BOSS_INTERVAL) {
       bossTimer = 0;
       spawnBoss();
+    
     }
 enemies.forEach(e => {
     if (!e.alive) return;
@@ -1893,226 +2227,225 @@ enemies.forEach(e => {
       trackDamage('curse', dmg);
       if (b.curse.duration <= 0) delete b.curse;
     }
-    if (b.health <= 2) {
-      b.alive = false;
-      score += 10 * wave;
-      gainXP(XP_PER_ENEMY * 3 * wave);
-      updateScoreUI();
-      spawnChest(b.x, b.y); // Ensure chest spawns on boss death
-    }
+if (b.health <= 0) {
+  b.alive = false;
+  score += 10 * wave;
+  gainXP(XP_PER_ENEMY * 3 * wave);
+  updateScoreUI();
+  spawnChest(b.x, b.y);
+  screenShake(30, 10); // Stronger shake for boss death
+}
   });
 summons.forEach((s, i) => {
-  s.life--;
-  if (s.portalLife > 0) s.portalLife--;
-  s.health = Math.max(0, s.health);
-  if (s.life <= 0 && s.portalLife <= 0 || s.health <= 2) {
-    summons.splice(i, 1);
-    return;
-  }
-    s.attackCooldown--;
-    if (s.type === 'shadow') {
-        if (!s.teleportCooldown) s.teleportCooldown = SUMMON_TYPES.shadow.teleportCooldown;
+    try {
+      s.life--;
+      s.health = Math.max(0, s.health);
+      if (s.life <= 0 || s.health <= 0) {
+        summons.splice(i, 1);
+        return;
+      }
+      if (s.portalLife > 0) {
+        s.portalLife--;
+        return; // Skip updates during portal animation
+      }
+      s.attackCooldown--;
+      if (s.type === 'shadow' && s.teleportCooldown) {
         s.teleportCooldown--;
-    }
-    let closestTarget = null;
-    let minDist = Infinity;
-    bosses.concat(enemies).forEach(e => {
-        if (!e.alive) return;
+      }
+      // Limit enemy search to prevent overload
+      let closestTarget = null;
+      let minDist = Infinity;
+      let maxEnemiesToCheck = Math.min(20, enemies.length + bosses.length); // Cap enemy checks
+      let targets = enemies.concat(bosses).filter(e => e.alive).slice(0, maxEnemiesToCheck);
+      for (let e of targets) {
         let d = distance(s.x, s.y, e.x, e.y);
         if (d < minDist) {
-            minDist = d;
-            closestTarget = e;
+          minDist = d;
+          closestTarget = e;
         }
-    });
-    if (closestTarget) {
+      }
+      if (closestTarget) {
         if (s.ultra && s.ultraEffects.taunt) {
-            enemies.concat(bosses).forEach(e => {
-                if (!e.alive) return;
-                if (distance(s.x, s.y, e.x, e.y) < 100) e.target = s;
-            });
+          let tauntTargets = targets.filter(e => distance(s.x, s.y, e.x, e.y) < 100);
+          for (let e of tauntTargets) {
+            e.target = s;
+          }
         }
-if (s.type === 'shadow' && s.teleportCooldown <= 0 && minDist > 50) {
-    let startX = s.x, startY = s.y;
-    s.x = closestTarget.x;
-    s.y = closestTarget.y;
-    s.teleportCooldown = SUMMON_TYPES.shadow.teleportCooldown;
-    // Add trail effect
-    for (let t = 0; t <= 1; t += 0.1) {
-        particles.push({
-            x: startX + (s.x - startX) * t,
-            y: startY + (s.y - startY) * t,
-            size: 10 * (1 - t) + 2,
-            life: 30,
-            color: `rgba(47, 47, 75, ${1 - t})`,
-            dx: (Math.random() - 0.5) * 2,
-            dy: (Math.random() - 0.5) * 2,
-            type: 'trail'
-        });
-    }
-    addParticles(s.x, s.y, 15, SUMMON_TYPES.shadow.color, 2, 30);
-
-            let angle = Math.atan2(closestTarget.y - s.y, closestTarget.x - s.x);
-            let shots = s.ultra && s.ultraEffects.dualShot ? 2 : 1;
-            for (let j = 0; j < shots; j++) {
-                let offset = shots === 2 ? (j - 0.5) * 0.2 : 0;
-                projectiles.push({
-                    x: s.x,
-                    y: s.y,
-                    size: 6 * (s.ultra ? 1.2 : 1),
-                    speed: 5,
-                    dx: Math.cos(angle + offset) * 5,
-                    dy: Math.sin(angle + offset) * 5,
-                    damage: s.damage,
-                    type: 'ghost_shot',
-                    weaponId: 'ghost',
-                    ultra: s.ultra,
-                    ultraEffects: s.ultraEffects
-                });
-            }
-            s.attackCooldown = SUMMON_TYPES.ghost.attackCooldown;
-            playAttackSound();
+        if (s.type === 'ghost' && s.attackCooldown <= 0) {
+          let angle = Math.atan2(closestTarget.y - s.y, closestTarget.x - s.x);
+          projectiles.push({
+            x: s.x,
+            y: s.y,
+            size: 6,
+            speed: 5,
+            dx: Math.cos(angle) * 5,
+            dy: Math.sin(angle) * 5,
+            damage: s.damage,
+            type: 'ghost_shot',
+            weaponId: 'ghost'
+          });
+          s.attackCooldown = SUMMON_TYPES.ghost.attackCooldown;
+          playAttackSound();
         } else if (s.type === 'dragon' && s.attackCooldown <= 0) {
-            for (let i = 0; i < 3; i++) {
-                let angle = (i - 1) * 0.3;
-                projectiles.push({
-                    x: s.x,
-                    y: s.y,
-                    size: 15,
-                    speed: 6,
-                    dx: Math.cos(angle) * 6,
-                    dy: Math.sin(angle) * 6,
-                    damage: s.damage,
-                    type: 'dragon_fire',
-                    piercing: true
-                });
-            }
-            s.attackCooldown = SUMMON_TYPES.dragon.attackCooldown;
-            playAttackSound();
+          let angle = Math.atan2(closestTarget.y - s.y, closestTarget.x - s.x);
+          projectiles.push({
+            x: s.x,
+            y: s.y,
+            size: 15,
+            speed: 6,
+            dx: Math.cos(angle) * 6,
+            dy: Math.sin(angle) * 6,
+            damage: s.damage,
+            type: 'dragon_fire',
+            piercing: true
+          });
+          s.attackCooldown = SUMMON_TYPES.dragon.attackCooldown;
+          playAttackSound();
         } else if (s.type === 'shadow' && s.attackCooldown <= 0) {
-            let angle = Math.atan2(closestTarget.y - s.y, closestTarget.x - s.x);
-            if (s.mirror && s.ultra) {
-                let weaponKeys = Object.keys(player.weapons).filter(w => ['blood', 'bone', 'wraith', 'scythe'].includes(w));
-                if (weaponKeys.length > 0) {
-                    let wId = weaponKeys[Math.floor(Math.random() * weaponKeys.length)];
-                    let weaponData = WEAPON_DATA[wId];
-                    let weaponLevel = player.weapons[wId]?.level || 1;
-                    let projDamage = (weaponData.baseDamage + weaponData.levelScaling.damage * (weaponLevel - 1)) * 0.5;
-                    if (wId === 'blood') {
-                        projectiles.push({
-                            x: s.x,
-                            y: s.y,
-                            size: 12 * (s.ultra ? 1.2 : 1),
-                            speed: 6,
-                            dx: Math.cos(angle) * 6,
-                            dy: Math.sin(angle) * 6,
-                            damage: projDamage,
-                            homing: true,
-                            target: closestTarget,
-                            homingStrength: 0.1,
-                            type: 'blood',
-                            weaponId: 'shadow'
-                        });
-                    } else if (wId === 'bone') {
-                        projectiles.push({
-                            x: s.x,
-                            y: s.y,
-                            size: 10 * (s.ultra ? 1.2 : 1),
-                            speed: 10,
-                            dx: Math.cos(angle) * 10,
-                            dy: Math.sin(angle) * 10,
-                            damage: projDamage,
-                            piercing: true,
-                            type: 'bone',
-                            weaponId: 'shadow',
-                            hits: []
-                        });
-                    } else if (wId === 'wraith') {
-                        projectiles.push({
-                            x: s.x,
-                            y: s.y,
-                            size: 8 * (s.ultra ? 1.2 : 1),
-                            speed: 5,
-                            dx: Math.cos(angle) * 5,
-                            dy: Math.sin(angle) * 5,
-                            damage: projDamage,
-                            homing: true,
-                            target: closestTarget,
-                            homingStrength: 0.2,
-                            type: 'wraith',
-                            weaponId: 'shadow'
-                        });
-                    } else if (wId === 'scythe') {
-                        projectiles.push({
-                            x: s.x,
-                            y: s.y,
-                            size: 15 * (s.ultra ? 1.2 : 1),
-                            speed: 8,
-                            dx: Math.cos(angle) * 8,
-                            dy: Math.sin(angle) * 8,
-                            damage: projDamage,
-                            piercing: true,
-                            type: 'scythe',
-                            weaponId: 'shadow'
-                        });
-                    }
-                    playAttackSound();
-                }
-            } else {
-                let dmg = s.damage;
-                closestTarget.health -= dmg;
-                trackDamage('shadow', dmg);
-                playEnemyHitSound();
-                addDamageNumber(closestTarget.x, closestTarget.y, dmg, s.color);
-                if (closestTarget.health <= 2) {
-                    closestTarget.alive = false;
-                    score += closestTarget.isBoss ? 10 * wave : 1;
-                    gainXP(closestTarget.isBoss ? XP_PER_ENEMY * 3 * wave : closestTarget.xp);
-                    updateScoreUI();
-                    if (closestTarget.isBoss) spawnChest(closestTarget.x, closestTarget.y);
-                }
+          if (s.teleportCooldown <= 0 && minDist > 50) {
+            let startX = s.x, startY = s.y;
+            s.x = closestTarget.x;
+            s.y = closestTarget.y;
+            s.teleportCooldown = SUMMON_TYPES.shadow.teleportCooldown;
+            for (let t = 0; t <= 1; t += 0.1) {
+              particles.push({
+                x: startX + (s.x - startX) * t,
+                y: startY + (s.y - startY) * t,
+                size: 10 * (1 - t) + 2,
+                life: 30,
+                color: `rgba(47, 47, 75, ${1 - t})`,
+                dx: (Math.random() - 0.5) * 2,
+                dy: (Math.random() - 0.5) * 2,
+                type: 'trail'
+              });
             }
-            s.attackCooldown = SUMMON_TYPES.shadow.attackCooldown;
+            addParticles(s.x, s.y, 5, SUMMON_TYPES.shadow.color, 2, 20);
+          }
+          if (s.mirror && s.ultra) {
+            let weaponKeys = Object.keys(player.weapons).filter(w => ['blood', 'bone', 'wraith', 'scythe'].includes(w));
+            if (weaponKeys.length > 0) {
+              let wId = weaponKeys[Math.floor(Math.random() * weaponKeys.length)];
+              let weaponData = WEAPON_DATA[wId];
+              let weaponLevel = player.weapons[wId]?.level || 1;
+              let projDamage = (weaponData.baseDamage + weaponData.levelScaling.damage * (weaponLevel - 1)) * 0.5;
+              let angle = Math.atan2(closestTarget.y - s.y, closestTarget.x - s.x);
+              if (wId === 'blood') {
+                projectiles.push({
+                  x: s.x,
+                  y: s.y,
+                  size: 12 * (s.ultra ? 1.2 : 1),
+                  speed: 6,
+                  dx: Math.cos(angle) * 6,
+                  dy: Math.sin(angle) * 6,
+                  damage: projDamage,
+                  homing: true,
+                  target: closestTarget,
+                  homingStrength: 0.1,
+                  type: 'blood',
+                  weaponId: 'shadow'
+                });
+              } else if (wId === 'bone') {
+                projectiles.push({
+                  x: s.x,
+                  y: s.y,
+                  size: 10 * (s.ultra ? 1.2 : 1),
+                  speed: 10,
+                  dx: Math.cos(angle) * 10,
+                  dy: Math.sin(angle) * 10,
+                  damage: projDamage,
+                  piercing: true,
+                  type: 'bone',
+                  weaponId: 'shadow',
+                  hits: []
+                });
+              } else if (wId === 'wraith') {
+                projectiles.push({
+                  x: s.x,
+                  y: s.y,
+                  size: 8 * (s.ultra ? 1.2 : 1),
+                  speed: 5,
+                  dx: Math.cos(angle) * 5,
+                  dy: Math.sin(angle) * 5,
+                  damage: projDamage,
+                  homing: true,
+                  target: closestTarget,
+                  homingStrength: 0.2,
+                  type: 'wraith',
+                  weaponId: 'shadow'
+                });
+              } else if (wId === 'scythe') {
+                projectiles.push({
+                  x: s.x,
+                  y: s.y,
+                  size: 15 * (s.ultra ? 1.2 : 1),
+                  speed: 8,
+                  dx: Math.cos(angle) * 8,
+                  dy: Math.sin(angle) * 8,
+                  damage: projDamage,
+                  piercing: true,
+                  type: 'scythe',
+                  weaponId: 'shadow'
+                });
+              }
+              playAttackSound();
+            }
+          } else {
+            let dmg = s.damage;
+            closestTarget.health -= dmg;
+            trackDamage('shadow', dmg);
+            playEnemyHitSound();
+            addDamageNumber(closestTarget.x, closestTarget.y, dmg, s.color);
+            if (closestTarget.health <= 0) {
+              closestTarget.alive = false;
+              score += closestTarget.isBoss ? 10 * wave : 1;
+              gainXP(closestTarget.isBoss ? XP_PER_ENEMY * 3 * wave : closestTarget.xp);
+              updateScoreUI();
+              if (closestTarget.isBoss) spawnChest(closestTarget.x, closestTarget.y);
+            }
+          }
+          s.attackCooldown = SUMMON_TYPES.shadow.attackCooldown;
         } else if (s.type !== 'ghost' && s.type !== 'dragon' && s.type !== 'shadow') {
-            let dir = normalizeVector(closestTarget.x - s.x, closestTarget.y - s.y);
-            s.x += dir.x * s.speed;
-            s.y += dir.y * s.speed;
-            if (distance(s.x, s.y, closestTarget.x, closestTarget.y) < s.size / 2 + closestTarget.size / 2 && s.attackCooldown <= 0) {
-                let dmg = s.damage;
-                closestTarget.health -= dmg;
-                trackDamage(s.type, dmg);
-                playEnemyHitSound();
-                if (s.ultra && s.ultraEffects.cleave) {
-                    enemies.concat(bosses).forEach(e => {
-                        if (!e.alive || e === closestTarget) return;
-                        if (distance(s.x, s.y, e.x, e.y) < s.size) {
-                            e.health -= dmg * 0.5;
-                            trackDamage(s.type, dmg * 0.5);
-                            addDamageNumber(e.x, e.y, dmg * 0.5, s.color);
-                            if (e.health <= 2) {
-                                e.alive = false;
-                                score += e.isBoss ? 10 * wave : 1;
-                                gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
-                                updateScoreUI();
-                                if (e.isBoss) spawnChest(e.x, e.y);
-                            }
-                        }
-                    });
+          let dir = normalizeVector(closestTarget.x - s.x, closestTarget.y - s.y);
+          s.x += dir.x * s.speed;
+          s.y += dir.y * s.speed;
+          if (distance(s.x, s.y, closestTarget.x, closestTarget.y) < s.size / 2 + closestTarget.size / 2 && s.attackCooldown <= 0) {
+            let dmg = s.damage;
+            closestTarget.health -= dmg;
+            trackDamage(s.type, dmg);
+            playEnemyHitSound();
+            if (s.ultra && s.ultraEffects.cleave) {
+              let cleaveTargets = targets.filter(e => e !== closestTarget && e.alive && distance(s.x, s.y, e.x, e.y) < s.size);
+              for (let e of cleaveTargets) {
+                e.health -= dmg * 0.5;
+                trackDamage(s.type, dmg * 0.5);
+                addDamageNumber(e.x, e.y, dmg * 0.5, s.color);
+                if (e.health <= 0) {
+                  e.alive = false;
+                  score += e.isBoss ? 10 * wave : 1;
+                  gainXP(e.isBoss ? XP_PER_ENEMY * 3 * wave : e.xp);
+                  updateScoreUI();
+                  if (e.isBoss) spawnChest(e.x, e.y);
                 }
-                if (s.ultra && s.ultraEffects.stun) {
-                    closestTarget.stunned = 60;
-                }
-                s.attackCooldown = SUMMON_TYPES[s.type].attackCooldown;
-                if (closestTarget.health <= 2) {
-                    closestTarget.alive = false;
-                    score += closestTarget.isBoss ? 10 * wave : 1;
-                    gainXP(closestTarget.isBoss ? XP_PER_ENEMY * 3 * wave : closestTarget.xp);
-                    updateScoreUI();
-                    if (closestTarget.isBoss) spawnChest(closestTarget.x, closestTarget.y);
-                }
+              }
             }
+            if (s.ultra && s.ultraEffects.stun) {
+              closestTarget.stunned = 60;
+            }
+            s.attackCooldown = SUMMON_TYPES[s.type].attackCooldown;
+            if (closestTarget.health <= 0) {
+              closestTarget.alive = false;
+              score += closestTarget.isBoss ? 10 * wave : 1;
+              gainXP(closestTarget.isBoss ? XP_PER_ENEMY * 3 * wave : closestTarget.xp);
+              updateScoreUI();
+              if (closestTarget.isBoss) spawnChest(closestTarget.x, closestTarget.y);
+            }
+          }
         }
+      }
+    } catch (err) {
+      console.error(`Error updating summon ${s.type} at index ${i}:`, err);
     }
-});
+  });
 projectiles.forEach((p, i) => {
   if (p.returnTime) {
     p.returnTime--;
@@ -2624,81 +2957,80 @@ enemies.forEach(e => {
   });
 
 summons.forEach(s => {
-  ctx.save();
-  // Draw portal if portalLife is active
-  if (s.portalLife > 0) {
-    let portalSprite;
-    let portalScale = s.type === 'dragon' ? 4 : 3;
-    switch (s.type) {
-      case 'skeleton':
-        portalSprite = skeletonPortalSprite;
-        break;
-      case 'zombie':
-        portalSprite = zombiePortalSprite;
-        break;
-      case 'ghost':
-        portalSprite = ghostPortalSprite;
-        break;
-      case 'golem':
-        portalSprite = golemPortalSprite;
-        break;
-      case 'dragon':
-        portalSprite = dragonPortalSprite;
-        break;
-      case 'shadow':
-        portalSprite = shadowPortalSprite;
-        break;
-      default:
-        portalSprite = null;
+    try {
+      ctx.save();
+      if (s.portalLife > 0) {
+        let portalSprite;
+        let portalScale = s.type === 'dragon' ? 3 : 2;
+        switch (s.type) {
+          case 'skeleton':
+            portalSprite = skeletonPortalSprite;
+            break;
+          case 'zombie':
+            portalSprite = zombiePortalSprite;
+            break;
+          case 'ghost':
+            portalSprite = ghostPortalSprite;
+            break;
+          case 'golem':
+            portalSprite = golemPortalSprite;
+            break;
+          case 'dragon':
+            portalSprite = dragonPortalSprite;
+            break;
+          case 'shadow':
+            portalSprite = shadowPortalSprite;
+            break;
+          default:
+            portalSprite = null;
+        }
+        if (portalSprite && portalSprite.complete && portalSprite.naturalWidth > 0) {
+          ctx.globalAlpha = Math.min(1, s.portalLife / 20);
+          ctx.drawImage(portalSprite, s.spawnX - (s.size * portalScale) / 2, s.spawnY - (s.size * portalScale) / 2, s.size * portalScale, s.size * portalScale);
+        } else {
+          console.warn(`Portal sprite for ${s.type} not loaded at frame ${frameCount}`);
+          ctx.globalAlpha = Math.min(1, s.portalLife / 20);
+          ctx.fillStyle = "#800080";
+          ctx.beginPath();
+          ctx.arc(s.spawnX, s.spawnY, s.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      } else {
+        let spriteScale = s.type === 'ghost' ? 3 : s.type === 'dragon' ? 3 : 2;
+        if (s.ultra && s.ultraEffects.glow) ctx.filter = 'drop-shadow(0 0 6px ' + (s.color || '#ffffff') + ')';
+        if (s.type === 'skeleton' && skeletonSprite.complete && skeletonSprite.naturalWidth > 0) {
+          ctx.drawImage(skeletonSprite, s.x - (s.size * spriteScale) / 2, s.y - (s.size * spriteScale) / 2, s.size * spriteScale, s.size * spriteScale);
+        } else if (s.type === 'zombie' && zombieSprite.complete && zombieSprite.naturalWidth > 0) {
+          ctx.drawImage(zombieSprite, s.x - (s.size * spriteScale) / 2, s.y - (s.size * spriteScale) / 2, s.size * spriteScale, s.size * spriteScale);
+        } else if (s.type === 'golem' && golemSprite.complete && golemSprite.naturalWidth > 0) {
+          ctx.drawImage(golemSprite, s.x - (s.size * spriteScale) / 2, s.y - (s.size * spriteScale) / 2, s.size * spriteScale, s.size * spriteScale);
+        } else if (s.type === 'ghost' && ghostIdleSprite.complete && ghostShootingSprite.complete && ghostIdleSprite.naturalWidth > 0 && ghostShootingSprite.naturalWidth > 0) {
+          const isShooting = s.attackCooldown >= SUMMON_TYPES.ghost.attackCooldown - 15;
+          const sprite = isShooting ? ghostShootingSprite : ghostIdleSprite;
+          ctx.drawImage(sprite, s.x - (s.size * spriteScale) / 2, s.y - (s.size * spriteScale) / 2, s.size * spriteScale, s.size * spriteScale);
+        } else if (s.type === 'shadow' && shadowPuppetSprite.complete && shadowPuppetSprite.naturalWidth > 0) {
+          ctx.drawImage(shadowPuppetSprite, s.x - (s.size * spriteScale) / 2, s.y - (s.size * spriteScale) / 2, s.size * spriteScale, s.size * spriteScale);
+        } else if (s.type === 'dragon' && skeletonDragonSprite.complete && skeletonDragonSprite.naturalWidth > 0) {
+          ctx.drawImage(skeletonDragonSprite, s.x - (s.size * spriteScale) / 2, s.y - (s.size * spriteScale) / 2, s.size * spriteScale, s.size * spriteScale);
+        } else {
+          console.warn(`Summon sprite for ${s.type} not loaded at frame ${frameCount}, using fallback`);
+          ctx.fillStyle = s.color || "#ffffff";
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#ffffff";
+          ctx.font = s.type === 'dragon' ? "30px Arial" : "16px Arial";
+          ctx.fillText(s.emoji || "?", s.x, s.y + (s.type === 'dragon' ? 10 : 4));
+        }
+        ctx.fillStyle = "#00ff00";
+        ctx.fillRect(s.x - (s.size * spriteScale) / 2, s.y - (s.size * spriteScale) / 2 - 8, s.size * spriteScale * (s.health / s.maxHealth), 4);
+      }
+      ctx.restore();
+    } catch (err) {
+      console.error(`Error rendering summon ${s.type}:`, err);
     }
-    if (portalSprite && portalSprite.complete && portalSprite.naturalWidth > 0) {
-      ctx.translate(s.spawnX, s.spawnY); // Center at spawn position
-      ctx.rotate(s.spawnAngle); // Use stored spawn angle
-      ctx.globalAlpha = Math.min(1, s.portalLife / 30); // Fade out over last 30 frames
-      let scale = s.portalLife / 60; // Shrink from 1 to 0 over portalLife
-      ctx.drawImage(portalSprite, -(s.size * portalScale * scale) / 2, -(s.size * portalScale * scale) / 2, s.size * portalScale * scale, s.size * portalScale * scale);
-      ctx.globalAlpha = 1;
-    } else {
-      ctx.globalAlpha = Math.min(1, s.portalLife / 30);
-      let scale = s.portalLife / 60;
-      ctx.fillStyle = "#800080";
-      ctx.beginPath();
-      ctx.arc(s.spawnX, s.spawnY, s.size * scale, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
-    }
-    ctx.resetTransform(); // Reset rotation and translation
-  }
-  // Rest of summon drawing remains unchanged
-  if (s.ultra && s.ultraEffects.glow) ctx.filter = 'drop-shadow(0 0 8px ' + (s.color || '#ffffff') + ')';
-  if (s.type === 'skeleton' && skeletonSprite.complete && skeletonSprite.naturalWidth > 0) {
-    ctx.drawImage(skeletonSprite, s.x - (s.size * 3) / 2, s.y - (s.size * 3) / 2, s.size * 3, s.size * 3);
-  } else if (s.type === 'zombie' && zombieSprite.complete && zombieSprite.naturalWidth > 0) {
-    ctx.drawImage(zombieSprite, s.x - (s.size * 3) / 2, s.y - (s.size * 3) / 2, s.size * 3, s.size * 3);
-  } else if (s.type === 'golem' && golemSprite.complete && golemSprite.naturalWidth > 0) {
-    ctx.drawImage(golemSprite, s.x - (s.size * 3) / 2, s.y - (s.size * 3) / 2, s.size * 3, s.size * 3);
-  } else if (s.type === 'ghost' && ghostIdleSprite.complete && ghostShootingSprite.complete && ghostIdleSprite.naturalWidth > 0 && ghostShootingSprite.naturalWidth > 0) {
-    const isShooting = s.attackCooldown >= SUMMON_TYPES.ghost.attackCooldown - 15;
-    const sprite = isShooting ? ghostShootingSprite : ghostIdleSprite;
-    ctx.drawImage(sprite, s.x - (s.size * 3.5) / 2, s.y - (s.size * 3.5) / 2, s.size * 3.5, s.size * 3.5);
-  } else if (s.type === 'shadow' && shadowPuppetSprite.complete && shadowPuppetSprite.naturalWidth > 0) {
-    ctx.drawImage(shadowPuppetSprite, s.x - (s.size * 3) / 2, s.y - (s.size * 3) / 2, s.size * 3, s.size * 3);
-  } else if (s.type === 'dragon' && skeletonDragonSprite.complete && skeletonDragonSprite.naturalWidth > 0) {
-    ctx.drawImage(skeletonDragonSprite, s.x - (s.size * 4) / 2, s.y - (s.size * 4) / 2, s.size * 4, s.size * 4);
-  } else {
-    ctx.fillStyle = s.color || "#ffffff";
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.size / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#ffffff";
-    ctx.font = s.type === 'dragon' ? "40px Arial" : "20px Arial";
-    ctx.fillText(s.emoji || "?", s.x, s.y + (s.type === 'dragon' ? 14 : 6));
-  }
-  const spriteScale = s.type === 'ghost' ? 3.5 : s.type === 'dragon' ? 4 : s.type === 'shadow' ? 3 : 3;
-  ctx.fillStyle = "#00ff00";
-  ctx.fillRect(s.x - (s.size * spriteScale) / 2, s.y - (s.size * spriteScale) / 2 - 12, s.size * spriteScale * (s.health / s.maxHealth), 4);
-  ctx.restore();
-});
+  });
 // Draw projectiles
 projectiles.forEach(p => {
   ctx.save();
